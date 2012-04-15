@@ -5,11 +5,13 @@ OBJECTS = $(SOURCES:.cpp=.o)
 EXE_SIM = liftSim
 LDFLAGS =
 
-all: $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $(EXE_SIM)
+all: $(EXE_SIM)
 
 .cpp.o:
 	g++ -c $(CFLAGS) $<
+
+$(EXE_SIM): $(OBJECTS)
+	$(CC) $(LDFLAGS) $^ -o $@
 
 debug:
 	strace -a 59 -o trace -ff -tt -e trace=ipc,read,write,open,close,fork,process $(EXE_SIM)
