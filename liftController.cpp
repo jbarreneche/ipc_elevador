@@ -61,19 +61,26 @@ class LiftShaft {
 		}
 };
 
+#include <signal.h>
+
 class Generador {
 	public:
-		Generador(int pid, int time) { }
+		Generador(pid_t pid, int time) {
+			this->pid = pid;
+			this->simTime = time;
+		}
 		void work() {
 			sleep(simTime);
+			kill(pid, SIGINT);
 		}
 	private:
 		int simTime;
+		pid_t pid;
 };
 
 int main() {
 	// Iniciar semaforos
-	int pid;
+	pid_t pid;
 	switch (pid = fork()) {
 	case -1:
 		perror("fork");
