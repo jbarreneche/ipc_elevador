@@ -6,11 +6,12 @@
 class PeopleGenerator {
 	public:
 
-		PeopleGenerator(pid_t pid);
+		PeopleGenerator(pid_t pid, int semId);
 		void run(int simTime);
 
 	private:
 		pid_t pid;
+		int semId;
 
 		void spawnPerson();
 };

@@ -9,19 +9,17 @@
 
 class LiftShaft {
 	public:
-		LiftShaft() {
+		LiftShaft(int semId) : liftController(semId) {
 			// initPipes();
 		}
+
 		int run() {
 			pid_t pid;
 			switch (pid = fork()) {
-			case -1: 
+			case -1:
 				return -1;
-			case 0: 
-				{
-					LiftController c; // recibe sems y pipes
-					return c.work();
-				}
+			case 0:
+				return liftController.work();
 			default:	
 				// Timer(); // recibe pipes y parametros de tiempo
 				// t.run();
@@ -30,8 +28,10 @@ class LiftShaft {
 			}
 				
 		}
+	
+	private:
+		LiftController liftController; // recibe sems y pipes
 };
-
 
 #endif
 
