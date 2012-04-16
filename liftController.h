@@ -3,25 +3,9 @@
 
 class LiftController {
 	public:
-		LiftController() {
-			// cierra los pipes que no necesita	
-			// incializa los sig handlers
-		}
-		int work() {
-			while(simRunning()) {
-				waitGenteEnElSistema();
-				// proteger sigint, sigterm
-				{
-					determinarProximoPiso();
-					viajarUnPiso();
-					// subirOBajarTimer();
-					// esperarFinTimer();
-					bajarPersonas();
-					subirPersonas();	
-				}
-			}
-			return 0;
-		}
+		LiftController();
+		int work();
+
 	private:
 		bool simRunning() {
 			return true;

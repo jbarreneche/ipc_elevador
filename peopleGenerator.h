@@ -2,19 +2,17 @@
 #define PEOPLE_GENERATOR
 
 #include <signal.h>
-#include <stdlib.h>
 
 class PeopleGenerator {
 	public:
-		PeopleGenerator(pid_t pid) {
-			this->pid = pid;
-		}
-		void run(int simTime) {
-			sleep(simTime);
-			kill(pid, SIGINT);
-		}
+
+		PeopleGenerator(pid_t pid);
+		void run(int simTime);
+
 	private:
 		pid_t pid;
+
+		void spawnPerson();
 };
 
 #endif
