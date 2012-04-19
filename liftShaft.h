@@ -23,7 +23,7 @@ class LiftShaft {
 			default:	
 				// Timer(); // recibe pipes y parametros de tiempo
 				// t.run();
-				wait(NULL);
+				wait();
 				return 0;
 			}
 				
@@ -31,6 +31,7 @@ class LiftShaft {
 	
 	private:
 		LiftController liftController; // recibe sems y pipes
+
 };
 
 #endif

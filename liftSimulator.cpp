@@ -3,9 +3,19 @@
 #include <sys/sem.h>
 #include <sys/ipc.h>
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <signal.h>
+
 int buildSemaphore( int size );
+void signalRegister( int sigNum, void (*handler)(int) );
 
 int main() {
+  
+        // todos los procesos hijo heredan la señal.
+        signalRegister( SIGINT, LiftController::callHandlers );
 
 	// Iniciar semaforos
 	int semId = buildSemaphore( 3 );
@@ -29,7 +39,7 @@ int main() {
 			g.run(30);
 			
 		}
-		wait(NULL);
+		wait();
 	}
 	
 	return 0;
@@ -48,3 +58,16 @@ int buildSemaphore( int size ) {
 	return semId;
 }
 
+
+void signalRegister( int sigNum, void (*handler)(int) ) {
+        struct sigaction sa;
+		  
+	sa.sa_handler = handler;
+	sa.sa_flags = 0; // or SA_RESTART
+	sigemptyset(&sa.sa_mask);
+		  
+	if (sigaction(SIGINT, &sa, NULL) == -1) {
+	  perror("sigaction");
+	  exit(0);
+	}
+}
