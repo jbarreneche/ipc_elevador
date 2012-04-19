@@ -4,12 +4,10 @@
 #include <unistd.h>
 #include <sys/sem.h>
 
-//inicializo el atributo estatico.
-std::vector<LiftController*> LiftController::instances;
+volatile sig_atomic_t LiftController::continuarSimulacion = 1;
 
 LiftController::LiftController(int semId) {
 	this->semId = semId;
-	LiftController::instances.push_back(this);
   // cierra los pipes que no necesita
   // incializa los sig handlers
 }
@@ -27,6 +25,7 @@ int LiftController::work() {
       subirPersonas();
     }
   }
+  std::cout << "Termino el LiftController pid=" << getpid() << ")" << std::endl;
   return 0;
 }
 
@@ -42,17 +41,8 @@ void LiftController::waitGenteEnElSistema() {
 	printf("Hay genteeeeeee!!!\n");
 }
 
-void LiftController::signalHandler( int signum ) {
-  std::cout << "SIGINT to LiftController (pid=" << getpid() << ")" << std::endl;
-}
-
-
 
 LiftController::~LiftController() {
-  std::vector<LiftController*>::iterator where = std::find( instances.begin(), 
-							    instances.end(), 
-							    this );
-  instances.erase(where);
 }
 
 

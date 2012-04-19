@@ -15,7 +15,7 @@ void signalRegister( int sigNum, void (*handler)(int) );
 int main() {
   
         // todos los procesos hijo heredan la señal.
-        if( signalRegister( SIGINT, LiftController::callHandlers );
+        signalRegister( SIGINT, LiftController::signalHandler ); 
 
 	// Iniciar semaforos
 	int semId = buildSemaphore( 3 );
