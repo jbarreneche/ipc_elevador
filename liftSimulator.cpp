@@ -15,7 +15,7 @@ void signalRegister( int sigNum, void (*handler)(int) );
 int main() {
   
         // todos los procesos hijo heredan la señal.
-        signalRegister( SIGINT, LiftController::callHandlers );
+        if( signalRegister( SIGINT, LiftController::callHandlers );
 
 	// Iniciar semaforos
 	int semId = buildSemaphore( 3 );
@@ -25,12 +25,12 @@ int main() {
 	case -1:
 
 		perror("fork");
-		exit(-1);
+		return(-1);
 
 	case 0:
 		{
 			LiftShaft l(semId); // recibe los semaforos ??
-			exit(l.run());
+			return l.run();
 		}
 
 	default:
