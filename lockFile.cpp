@@ -1,5 +1,6 @@
 #include "lockFile.h"
 
+#include <iostream>
 LockFile :: LockFile ( char* nombre ) {
 
 	strcpy ( this->nombre,nombre );
@@ -24,7 +25,8 @@ LockFile::LockFile ( int fd ) {
 }
 
 int LockFile :: tomarLock () {
-	this->fl.l_type = F_WRLCK;
+
+        this->fl.l_type = F_WRLCK;
 	int resultado = fcntl ( this->fd,F_SETLKW,&(this->fl) );
 	return resultado;
 }

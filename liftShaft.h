@@ -6,14 +6,16 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "logger.h"
 
 class LiftShaft {
 	public:
-		LiftShaft(int semId) : liftController(semId) {
+  LiftShaft(int semId) : liftController(semId), log("LiftShaft") {
 			// initPipes();
 		}
 
 		int run() {
+		        log.debug("run liftShaft");
 			pid_t pid;
 			switch (pid = fork()) {
 			case -1:
@@ -31,7 +33,7 @@ class LiftShaft {
 	
 	private:
 		LiftController liftController; // recibe sems y pipes
-
+                Logger log;
 };
 
 #endif

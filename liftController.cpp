@@ -6,7 +6,7 @@
 
 volatile sig_atomic_t LiftController::continuarSimulacion = 1;
 
-LiftController::LiftController(int semId) {
+LiftController::LiftController(int semId):log("LiftController") {
 	this->semId = semId;
   // cierra los pipes que no necesita
   // incializa los sig handlers
@@ -25,7 +25,8 @@ int LiftController::work() {
       subirPersonas();
     }
   }
-  std::cout << "Termino el LiftController pid=" << getpid() << ")" << std::endl;
+  log.info( "Termino el LiftController" );
+
   return 0;
 }
 
@@ -38,7 +39,7 @@ void LiftController::waitGenteEnElSistema() {
 	dataop.sem_flg = 0;
 
 	semop(semId, &dataop, 1);
-	printf("Hay genteeeeeee!!!\n");
+	log.info( "Hay gente!!" );
 }
 
 

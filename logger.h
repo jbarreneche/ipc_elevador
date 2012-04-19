@@ -2,12 +2,14 @@
 #define LOGGER
 
 #include "lockFile.h"
+#include <string>
 
 class Logger {
 	public:
-                Logger( char* pathname );
 
+                Logger( char* processName, char* pathname );
                 //logea a stdout
+                Logger( const char* processName );
                 Logger();
 		
                 void info( const char* msg );
@@ -17,8 +19,8 @@ class Logger {
 	private:
 
                 LockFile file;
-
-                void log( const char* tipoMsg, int pid, const char* msg ); 
+                std::string processName;  
+                void log( const char* tipoMsg, const char* msg ); 
 };
 
 

@@ -3,6 +3,7 @@
 
 #include <signal.h>
 
+#include "logger.h"
 class PeopleGenerator {
 	public:
 
@@ -13,6 +14,7 @@ class PeopleGenerator {
 		pid_t pid;
 		int semId;
 
+                Logger log;
 		void spawnPerson();
 };
 

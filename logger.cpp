@@ -11,31 +11,34 @@
 
 #define LOG_DEBUG
 
-Logger::Logger( char* pathName ):file(pathName) {
+Logger::Logger( char* processName, char* pathName ):file(pathName), processName(processName)  {
 }			       
 
 //logea a stdout
-Logger::Logger():file(1) {
+Logger::Logger( const char* processName ):file(1), processName(processName)  {
+}			       
+
+Logger::Logger():file(1), processName("")  {
 }			       
 
 
 void Logger::info( const char* msg ) {
-  this->log( "INFO", getpid(), msg );
+  this->log( "info ", msg );
 }
 
 void Logger::error( const char* msg ) {
-  this->log( "ERROR", getpid(), msg );
+  this->log( "error", msg );
 }
 
 void Logger::debug( const char* msg ) {
   #ifdef LOG_DEBUG
-  this->log( "DEBUG", getpid(), msg );
+  this->log( "debug", msg );
   #endif
 }
 
-void Logger::log( const char* tipoMsg, int pid, const char* msg ) {
+void Logger::log( const char* tipoMsg, const char* msg ) {
   std::stringstream ss;
-  ss << tipoMsg << "(pid=" << pid << "): " << msg << std::endl;
+  ss << tipoMsg << "-" << processName << "(pid=" << getpid() << "): " << msg << std::endl;
 
   std::string msgToPrint;
   msgToPrint=ss.str();

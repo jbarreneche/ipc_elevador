@@ -8,12 +8,14 @@
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
-
+#include "logger.h"
+ 
 int buildSemaphore( int size );
 void signalRegister( int sigNum, void (*handler)(int) );
 
 int main() {
-  
+        Logger log;
+
         // todos los procesos hijo heredan la señal.
         signalRegister( SIGINT, LiftController::signalHandler ); 
 
@@ -21,6 +23,7 @@ int main() {
 	int semId = buildSemaphore( 3 );
 	pid_t pid;
 
+	log.debug( "start LiftSimulation" );
 	switch (pid = fork()) {
 	case -1:
 
@@ -36,7 +39,7 @@ int main() {
 	default:
 		{
 			PeopleGenerator g(pid, semId); // recibe los semaforos ??  y TTotal de simulacion
-			g.run(30);
+			g.run(5);
 			
 		}
 		wait();

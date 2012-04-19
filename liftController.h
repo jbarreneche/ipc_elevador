@@ -5,6 +5,8 @@
 
 #include <signal.h>
 
+#include "logger.h"
+
 class LiftController {
 	public:
 		LiftController(int semId);
@@ -18,6 +20,7 @@ class LiftController {
 
 	private:
 
+                Logger log;
                 static volatile sig_atomic_t continuarSimulacion;
 
 		int semId;

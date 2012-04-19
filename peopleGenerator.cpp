@@ -9,7 +9,7 @@
 #define DELTA_SLEEP 10
 #define MIN_SLEEP 3
 
-PeopleGenerator::PeopleGenerator(pid_t pid, int semId) {
+PeopleGenerator::PeopleGenerator(pid_t pid, int semId) : log("PeopleGenerator") {
   this->pid = pid;
 	this->semId = semId;
 }
@@ -23,11 +23,13 @@ void PeopleGenerator::run(int simTime) {
     spawnPerson();
   }
 
+  log.info( "Fin peopleGenerator.mando SIGINT a controller" );
   kill(pid, SIGINT);
 }
 
 void PeopleGenerator::spawnPerson() {
-  printf( "New born!!\n" );
+        log.info( "New born!!\n" );
+
 	// key_t key = ftok( "liftSim", 0);
 	// int semId = semget(key, 3, 0);
 	struct sembuf dataop;	
