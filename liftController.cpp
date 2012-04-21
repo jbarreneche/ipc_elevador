@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <sys/sem.h>
 
+void signalRegister( int sigNum, void (*handler)(int) );
 volatile sig_atomic_t LiftController::continuarSimulacion = 1;
 
 LiftController::LiftController(int semId):log("LiftController") {
@@ -13,6 +14,9 @@ LiftController::LiftController(int semId):log("LiftController") {
 }
 
 int LiftController::work() {
+  // todos los procesos hijo heredan la señal.
+  signalRegister( SIGINT, LiftController::signalHandler ); 
+
   while(simRunning()) {
     waitGenteEnElSistema();
     // proteger sigint, sigterm
@@ -46,6 +50,15 @@ void LiftController::waitGenteEnElSistema() {
 LiftController::~LiftController() {
 }
 
+void signalRegister( int sigNum, void (*handler)(int) ) {
+  struct sigaction sa;
 
+  sa.sa_handler = handler;
+  sa.sa_flags = 0; // or SA_RESTART
+  sigemptyset(&sa.sa_mask);
 
-
+  if (sigaction(SIGINT, &sa, NULL) == -1) {
+    perror("sigaction");
+    exit(0);
+  }
+}

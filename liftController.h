@@ -2,38 +2,36 @@
 #define LIFT_CONTROLLER
 
 #include <iostream>
-
 #include <signal.h>
 
 #include "logger.h"
 
 class LiftController {
-	public:
-		LiftController(int semId);
-		int work();
-                ~LiftController();
+  public:
+    LiftController(int semId);
+    int work();
+    ~LiftController();
 
-                static void signalHandler( int signum ) {
-		  LiftController::continuarSimulacion = 0;
-		  std::cout << "SIGINT to LiftController (pid=" << getpid() << ")" << std::endl;
-		}
+    static void signalHandler( int signum ) {
+      LiftController::continuarSimulacion = 0;
+      std::cout << "SIGINT to LiftController (pid=" << getpid() << ")" << std::endl;
+    }
 
-	private:
+  private:
 
-                Logger log;
-                static volatile sig_atomic_t continuarSimulacion;
+    Logger log;
+    static volatile sig_atomic_t continuarSimulacion;
 
-		int semId;
-		bool simRunning() {
-		  return ( LiftController::continuarSimulacion == 1 );
-		}
-		void waitGenteEnElSistema();
-		void determinarProximoPiso() {}
-		void viajarUnPiso() {}
-		void bajarPersonas() {}
-		void subirPersonas() {}
+    int semId;
+    bool simRunning() {
+      return ( LiftController::continuarSimulacion == 1 );
+    }
+    void waitGenteEnElSistema();
+    void determinarProximoPiso() {}
+    void viajarUnPiso() {}
+    void bajarPersonas() {}
+    void subirPersonas() {}
 };
-
 
 
 #endif

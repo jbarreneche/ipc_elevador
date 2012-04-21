@@ -48,8 +48,3 @@ void Logger::log( const char* tipoMsg, const char* msg ) {
   this->file.liberarLock();
 }
 
-
-
-
-
-
