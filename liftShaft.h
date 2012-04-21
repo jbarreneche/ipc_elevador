@@ -11,7 +11,7 @@
 
 class LiftShaft {
   public:
-    LiftShaft(int semId) : liftController(semId), log("LiftShaft") {
+    LiftShaft(int semId) : liftController(semId, 9), log("LiftShaft") {
       // initPipes();
     }
 
