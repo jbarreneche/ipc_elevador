@@ -14,8 +14,9 @@ LiftController::LiftController(int semId, int numberOfFloors) : log("LiftControl
   peopleTravelling = 0;
   nextFloor = currentFloor = 0;
   movingDirection = NOT_MOVING;
+  busyFloors.at(5) = 1;
+  busyFloors.at(0) = 1;
   // cierra los pipes que no necesita
-  // incializa los sig handlers
 }
 
 int LiftController::work() {
@@ -73,4 +74,78 @@ void LiftController::determinarProximoPiso() {
   std::stringstream ss;
   ss << "Current floor: " << currentFloor << " Next floor: " << nextFloor;
   log.debug(ss.str().c_str());
+}
+
+void LiftController::updateMovingDirection() {
+  int nearestFloor = currentFloor;
+  switch ( movingDirection ) {
+    case NOT_MOVING: case UP:
+      nearestFloor = findNearestAbove();
+      if (nearestFloor == -1) {
+        nearestFloor = findNearestBelow();
+      }
+      //nearestFloor;
+      break;
+    case DOWN:
+      nearestFloor = findNearestBelow();
+      if (nearestFloor == -1) {
+        nearestFloor = findNearestAbove();
+      }
+  }
+
+  movingDirection = nearestFloor == -1 ?  NOT_MOVING :
+    nearestFloor > (int)currentFloor ? UP :
+    nearestFloor < (int)currentFloor ? DOWN : NOT_MOVING;
+}
+
+void LiftController::viajarUnPiso() {
+  currentFloor = nextFloor;
+}
+
+int LiftController::findNearestAbove() {
+  int nearest = -1;
+  unsigned int currentFloor = this->currentFloor + 1;
+  while (nearest == -1 && currentFloor < requestedFloors.size() ) {
+    if ( requestedFloors.at(currentFloor) > 0 || 
+        (busyFloors.at(currentFloor) > 0 && !this->isFull()) ) {
+      nearest = currentFloor;
+      break;
+    }
+    currentFloor++;
+  }
+  return nearest;
+}
+
+int LiftController::findNearestBelow() {
+  int nearest = - 1;
+  unsigned int currentFloor = this->currentFloor - 1;
+  while (nearest == - 1 && currentFloor < requestedFloors.size() ) {
+    if ( requestedFloors.at(currentFloor) > 0 || 
+        (busyFloors.at(currentFloor) > 0 && !this->isFull()) ) {
+      nearest = currentFloor;
+      break;
+    }
+    currentFloor--;
+  }
+  return nearest;
+}
+
+void LiftController::bajarPersonas() {
+  // Let people in!!
+  if ( requestedFloors.at(currentFloor) > 0 ) {
+    log.info("Bajando personas del ascensor");
+    requestedFloors.at(currentFloor) = 0;
+  }
+}
+
+void LiftController::subirPersonas() {
+  // Let people in!!
+  if ( !this->isFull() && busyFloors.at(currentFloor) > 0 ) {
+    log.info("Subiendo personas!!!");
+    busyFloors.at(currentFloor) = 0;
+  }
+}
+
+bool LiftController::isFull() {
+  return false;
 }

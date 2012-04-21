@@ -7,7 +7,7 @@
 
 #include "logger.h"
 
-enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 0 };
+enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 1 };
 
 class LiftController {
   public:
@@ -37,11 +37,14 @@ class LiftController {
     }
     void waitGenteEnElSistema();
     void determinarProximoPiso();
-    void viajarUnPiso() {}
-    void bajarPersonas() {}
-    void subirPersonas() {}
+    void viajarUnPiso();
+    void bajarPersonas();
+    void subirPersonas();
+    bool isFull();
     void refreshBusyFloors() {}
-    void updateMovingDirection() {}
+    void updateMovingDirection();
+    int findNearestBelow();
+    int findNearestAbove();
 };
 
 
