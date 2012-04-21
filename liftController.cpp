@@ -4,9 +4,14 @@
 #include <unistd.h>
 #include <sstream>
 #include <sys/sem.h>
+#include <algorithm>
 
 void signalRegister( int sigNum, void (*handler)(int) );
 volatile sig_atomic_t LiftController::continuarSimulacion = 1;
+
+template <class T> const T& min ( const T& a, const T& b ) {
+    return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
+}
 
 LiftController::LiftController(int semId, int numberOfFloors) : log("LiftController") , busyFloors(numberOfFloors, 0), requestedFloors(numberOfFloors, 0) {
   this->semId = semId;
@@ -14,6 +19,7 @@ LiftController::LiftController(int semId, int numberOfFloors) : log("LiftControl
   peopleTravelling = 0;
   nextFloor = currentFloor = 0;
   movingDirection = NOT_MOVING;
+  lugarDisponible = 7;
   busyFloors.at(5) = 1;
   busyFloors.at(0) = 1;
   // cierra los pipes que no necesita
@@ -131,9 +137,10 @@ int LiftController::findNearestBelow() {
 }
 
 void LiftController::bajarPersonas() {
-  // Let people in!!
+  // Let people get out!!
   if ( requestedFloors.at(currentFloor) > 0 ) {
     log.info("Bajando personas del ascensor");
+    lugarDisponible += requestedFloors.at(currentFloor);
     requestedFloors.at(currentFloor) = 0;
   }
 }
@@ -142,10 +149,24 @@ void LiftController::subirPersonas() {
   // Let people in!!
   if ( !this->isFull() && busyFloors.at(currentFloor) > 0 ) {
     log.info("Subiendo personas!!!");
+    int total = min(busyFloors.at(currentFloor), lugarDisponible);
+    for ( int i = 0 ; i < total ; i ++ ) {
+      requestedFloors.at(randFloor()) ++ ;
+    }
     busyFloors.at(currentFloor) = 0;
+    lugarDisponible -= total;
   }
 }
 
 bool LiftController::isFull() {
-  return false;
+  return ( lugarDisponible == 0 );
+}
+
+unsigned int LiftController::randFloor() {
+  unsigned int floor = rand() % (numberOfFloors - 1);
+  if (floor >= currentFloor) {
+    return floor + 1;
+  } else {
+    return floor;
+  }
 }

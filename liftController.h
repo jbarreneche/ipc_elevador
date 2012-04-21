@@ -26,7 +26,7 @@ class LiftController {
     static volatile sig_atomic_t continuarSimulacion;
 
     int semId;
-    int peopleTravelling, numberOfFloors;
+    int peopleTravelling, numberOfFloors, lugarDisponible;
     unsigned int nextFloor, currentFloor;
     MovingDirection movingDirection;
     std::vector<int> busyFloors;
@@ -45,6 +45,7 @@ class LiftController {
     void updateMovingDirection();
     int findNearestBelow();
     int findNearestAbove();
+    unsigned int randFloor();
 };
 
 

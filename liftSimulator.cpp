@@ -13,6 +13,7 @@
 int buildSemaphore( int size );
 
 int main() {
+  srand ( time(NULL) );
   Logger log;
 
   // Iniciar semaforos
