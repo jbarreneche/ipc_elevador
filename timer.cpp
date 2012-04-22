@@ -20,7 +20,7 @@ int signalRegister2( int sigNum, void (*handler)(int) ) {
   struct sigaction sa;
 
   sa.sa_handler = handler;
-  sa.sa_flags = 0; // or SA_RESTART
+  sa.sa_flags = SA_RESTART;
   sigemptyset(&sa.sa_mask);
 
   if (sigaction(SIGINT, &sa, NULL) == -1) {

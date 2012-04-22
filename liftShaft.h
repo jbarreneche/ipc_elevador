@@ -29,8 +29,8 @@ class LiftShaft {
 
           Timer t(30); // recibe pipes y parametros de tiempo
           t.start(pid);
-          log.debug("waiting for sun to finish");
-          wait(NULL);
+          log.debug("waiting for son to finish");
+          waitpid(pid, NULL, 0);
           return 0;
       }
 

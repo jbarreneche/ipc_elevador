@@ -39,7 +39,7 @@ int main() {
         g.run(5);
 
       }
-      wait(NULL);
+      waitpid(pid, NULL, 0);
   }
 
   return 0;

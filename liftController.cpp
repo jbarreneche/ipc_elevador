@@ -102,6 +102,7 @@ void LiftController::updateMovingDirection() {
 void LiftController::viajarUnPiso() {
   // subirOBajarTimer();
   // esperarFinTimer();
+  sleep(3);
   currentFloor = currentFloor + (int)movingDirection;
 }
 
