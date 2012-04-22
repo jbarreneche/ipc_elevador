@@ -1,10 +1,7 @@
 #include "liftController.h"
 
 #include <stdio.h>
-#include <unistd.h>
 #include <sstream>
-#include <sys/sem.h>
-#include <algorithm>
 
 void signalRegister( int sigNum, void (*handler)(int) );
 volatile sig_atomic_t LiftController::continuarSimulacion = 1;
@@ -13,15 +10,13 @@ template <class T> const T& min ( const T& a, const T& b ) {
     return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
 }
 
-LiftController::LiftController(int semId, unsigned int numberOfFloors) : log("LiftController") , busyFloors(numberOfFloors, 0), requestedFloors(numberOfFloors, 0) {
-  this->semId = semId;
+LiftController::LiftController(SetPuertas *puertas, unsigned int numberOfFloors) : log("LiftController") , busyFloors(numberOfFloors, 0), requestedFloors(numberOfFloors, 0) {
+  this->puertas = puertas;
   this->numberOfFloors = numberOfFloors;
   peopleTravelling = 0;
   nextFloor = currentFloor = 0;
   movingDirection = NOT_MOVING;
   lugarDisponible = 7;
-  busyFloors.at(5) = 1;
-  busyFloors.at(0) = 1;
   // cierra los pipes que no necesita
 }
 
@@ -42,13 +37,8 @@ int LiftController::work() {
 }
 
 void LiftController::waitGenteEnElSistema() {
-	struct sembuf dataop;	
-	dataop.sem_num = 1;
-	dataop.sem_op = - (peopleTravelling + 1);
-	dataop.sem_flg = 0;
-
 	log.info( "Esperando que entre mas gente" );
-	semop(semId, &dataop, 1);
+  puertas->waitGenteEnSistema();
 	log.info( "Hay gente!!" );
 }
 
@@ -76,6 +66,12 @@ MovingDirection LiftController::determinarDireccionDeMovimiento() {
   ss << "Current floor: " << currentFloor << " Next floor: " << nextFloor;
   log.debug(ss.str().c_str());
   return movingDirection;
+}
+
+void LiftController::refreshBusyFloors() {
+  for ( unsigned int i = 0; i < busyFloors.size() ; i ++ ) {
+    busyFloors.at(i) = puertas->getCantidadDePersonas( i );
+  }
 }
 
 void LiftController::updateMovingDirection() {
@@ -149,6 +145,7 @@ void LiftController::subirPersonas() {
     log.info("Subiendo personas!!!");
     int total = min(busyFloors.at(currentFloor), lugarDisponible);
     for ( int i = 0 ; i < total ; i ++ ) {
+      puertas->sacarPersona( currentFloor );
       requestedFloors.at(randFloor()) ++ ;
     }
     busyFloors.at(currentFloor) = 0;

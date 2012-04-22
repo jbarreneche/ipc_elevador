@@ -9,12 +9,12 @@
 #define DELTA_SLEEP 10
 #define MIN_SLEEP 3
 
-PeopleGenerator::PeopleGenerator(pid_t pid, int semId) : log("PeopleGenerator") {
-  this->pid = pid;
-	this->semId = semId;
+PeopleGenerator::PeopleGenerator(SetPuertas *puertas) : log("PeopleGenerator") {
+  this->puertas = puertas;
 }
 
-void PeopleGenerator::run(int simTime) {
+void PeopleGenerator::run(int simTime, pid_t pid) {
+  this->pid = pid;
   time_t start = time(NULL);
   time_t end = start + simTime;
 
@@ -23,20 +23,11 @@ void PeopleGenerator::run(int simTime) {
     spawnPerson();
   }
 
-  log.info( "Fin peopleGenerator.mando SIGINT a controller" );
+  log.info( "Fin peopleGenerator. Mando SIGINT a controller" );
   kill(pid, SIGINT);
 }
 
 void PeopleGenerator::spawnPerson() {
-        log.info( "New born!!\n" );
-
-	// key_t key = ftok( "liftSim", 0);
-	// int semId = semget(key, 3, 0);
-	struct sembuf dataop;	
-	dataop.sem_num = 1;
-	dataop.sem_op =  1;
-	dataop.sem_flg = 0;
-
-	semop(semId, &dataop, 1);
+  puertas->agregarPersona( rand() % puertas->getCantidadDePuertas() );
 }
 

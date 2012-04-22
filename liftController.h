@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <signal.h>
+#include "setPuertas.h"
 
 #include "logger.h"
 
@@ -11,7 +12,7 @@ enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 1 };
 
 class LiftController {
   public:
-    LiftController(int semId, unsigned int numberOfFloors);
+    LiftController(SetPuertas *puertas, unsigned int numberOfFloors);
     int work();
     ~LiftController();
 
@@ -25,7 +26,7 @@ class LiftController {
     Logger log;
     static volatile sig_atomic_t continuarSimulacion;
 
-    int semId;
+    SetPuertas *puertas;
     unsigned int peopleTravelling, numberOfFloors, lugarDisponible;
     unsigned int nextFloor, currentFloor;
     MovingDirection movingDirection;
@@ -40,7 +41,7 @@ class LiftController {
     void bajarPersonas();
     void subirPersonas();
     bool isFull();
-    void refreshBusyFloors() {}
+    void refreshBusyFloors();
     void updateMovingDirection();
     int findNearestBelow();
     int findNearestAbove();

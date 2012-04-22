@@ -4,18 +4,19 @@
 #include <signal.h>
 
 #include "logger.h"
+#include "setPuertas.h"
+
 class PeopleGenerator {
-	public:
+  public:
+    PeopleGenerator(SetPuertas *puertas);
 
-		PeopleGenerator(pid_t pid, int semId);
-		void run(int simTime);
+    void run(int simTime, pid_t pid);
 
-	private:
-		pid_t pid;
-		int semId;
-
-                Logger log;
-		void spawnPerson();
+  private:
+    pid_t pid;
+    SetPuertas *puertas;
+    Logger log;
+    void spawnPerson();
 };
 
 #endif

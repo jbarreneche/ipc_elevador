@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sstream>
 #include <unistd.h>
 #include <errno.h>
 #include <signal.h>
@@ -12,8 +13,6 @@
 #include "logger.h"
 
 SetPuertas::SetPuertas(int cantPuertas): log("SetPuertas") {
-  int i;
-  struct semid_ds buf;
   struct sembuf sb;
   int semid;
 
@@ -22,7 +21,6 @@ SetPuertas::SetPuertas(int cantPuertas): log("SetPuertas") {
   key_t key = ftok("botoneras", 0);  
   semid = semget(key, cantPuertas+1, IPC_CREAT | IPC_EXCL | 0666);
 
-  
   if (semid >= 0) { /* we got it first */
     sb.sem_op = 0; sb.sem_flg = 0;
 
@@ -49,7 +47,6 @@ SetPuertas::SetPuertas(int cantPuertas): log("SetPuertas") {
 
 SetPuertas::~SetPuertas(){
   semctl(this->semId, 0, IPC_RMID);
-
 }
 
 void SetPuertas::agregarPersona( int numPuerta ) {
@@ -71,13 +68,16 @@ void SetPuertas::agregarPersona( int numPuerta ) {
   dataop.sem_flg = 0;
   semop(this->semId, &dataop, 1);
 
-  log.info( "agrego persona a puerta" );
+
+  std::stringstream ss;
+  ss << "Agrego persona a puerta " << numPuerta;
+  log.info(ss.str().c_str());
 }
 
 bool SetPuertas::sacarPersona( int numPuerta ) {
   if( numPuerta >= this->cantPuertas ) {
     log.error( "No existe puerta" );
-    return true;
+    return false;
   }
 
   //actualiza la cantidad de personas en la puerta
@@ -93,7 +93,10 @@ bool SetPuertas::sacarPersona( int numPuerta ) {
   dataop.sem_flg = 0;
   semop(this->semId, &dataop, 1);
 
-  log.info( "saco persona de puerta" );
+  std::stringstream ss;
+  ss << "Saco persona de puerta " << numPuerta;
+  log.info(ss.str().c_str());
+
   return true;
 }
 
@@ -106,7 +109,7 @@ int SetPuertas::waitGenteEnSistema() {
 
   sb.sem_num = this->cantPuertas;
   sb.sem_op = 1;
-  sb.sem_flg = 0;  
+  sb.sem_flg = 0;
   semop(this->semId, &sb, 1);
 
   if( result == -1 )
@@ -121,8 +124,12 @@ int SetPuertas::getGenteEnSistema() {
 }
 
 int SetPuertas::getCantidadDePersonas( int numPuerta ) {
-  int count;
-  count = semctl(this->semId, numPuerta, GETVAL );
+  int count = semctl(this->semId, numPuerta, GETVAL );
+
+  //std::stringstream ss;
+  //ss << "Cantidad de personas en " << numPuerta << ": " << count;
+  //log.info(ss.str().c_str());
+
   return count;
 }
 
