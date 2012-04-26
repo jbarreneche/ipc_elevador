@@ -11,7 +11,8 @@
 
 class LiftShaft {
   public:
-    LiftShaft(SetPuertas *puertas) : liftController(puertas), log("LiftShaft") {
+    LiftShaft(SetPuertas *puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
+      liftController(puertas, capacidadAscensor), log("LiftShaft") {
       // initPipes();
     }
 

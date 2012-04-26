@@ -8,11 +8,11 @@
 
 #include "logger.h"
 
-enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 1, END_MOVING };
+enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 1, STOPPED };
 
 class LiftController {
   public:
-    LiftController(SetPuertas *puertas);
+    LiftController(SetPuertas *puertas, unsigned int capacidad);
     int work();
     ~LiftController();
 
@@ -48,6 +48,5 @@ class LiftController {
     unsigned int randFloor();
     MovingDirection determinarDireccionDeMovimiento();
 };
-
 
 #endif

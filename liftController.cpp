@@ -10,7 +10,7 @@ template <class T> const T& min ( const T& a, const T& b ) {
     return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
 }
 
-LiftController::LiftController(SetPuertas *puertas) :
+LiftController::LiftController(SetPuertas *puertas, unsigned int capacidad) :
   log("LiftController") ,
   busyFloors(puertas->getCantidadDePuertas(), 0),
   requestedFloors(puertas->getCantidadDePuertas(), 0) {
@@ -19,8 +19,8 @@ LiftController::LiftController(SetPuertas *puertas) :
   this->numberOfFloors = puertas->getCantidadDePuertas();
   peopleTravelling = 0;
   nextFloor = currentFloor = 0;
-  movingDirection = END_MOVING;
-  lugarDisponible = 7;
+  movingDirection = STOPPED;
+  lugarDisponible = capacidad;
   // cierra los pipes que no necesita
 }
 
@@ -29,7 +29,7 @@ int LiftController::work() {
 
   while(simRunning()) {
     waitGenteEnElSistema();
-    while ( determinarDireccionDeMovimiento() != END_MOVING ) {
+    while ( determinarDireccionDeMovimiento() != STOPPED ) {
       viajarUnPiso();
       bajarPersonas();
       subirPersonas();
@@ -65,7 +65,7 @@ void signalRegister( int sigNum, void (*handler)(int) ) {
 MovingDirection LiftController::determinarDireccionDeMovimiento() {
   refreshBusyFloors();
   updateMovingDirection();
-  if ( movingDirection != END_MOVING ) {
+  if ( movingDirection != STOPPED ) {
     nextFloor = currentFloor + (int)movingDirection;
     std::stringstream ss;
     ss << "Current floor: " << currentFloor << " Next floor: " << nextFloor;
@@ -83,7 +83,7 @@ void LiftController::refreshBusyFloors() {
 void LiftController::updateMovingDirection() {
   int nearestFloor = currentFloor;
   switch ( movingDirection ) {
-    case END_MOVING: case UP: case NOT_MOVING:
+    case STOPPED: case UP: case NOT_MOVING:
       nearestFloor = findNearestAbove();
       if (nearestFloor == -1) {
         nearestFloor = findNearestBelow();
@@ -96,7 +96,7 @@ void LiftController::updateMovingDirection() {
       }
   }
 
-  movingDirection = nearestFloor == -1 ?  END_MOVING :
+  movingDirection = nearestFloor == -1 ?  STOPPED :
     nearestFloor > (int)currentFloor ? UP :
     nearestFloor < (int)currentFloor ? DOWN : NOT_MOVING;
 }
