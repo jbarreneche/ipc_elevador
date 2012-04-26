@@ -12,7 +12,7 @@
 
 #include "logger.h"
 
-SetPuertas::SetPuertas(int cantPuertas): log("SetPuertas") {
+SetPuertas::SetPuertas(unsigned int cantPuertas): log("SetPuertas") {
   struct sembuf sb;
   int semid;
 
@@ -49,7 +49,7 @@ SetPuertas::~SetPuertas(){
   semctl(this->semId, 0, IPC_RMID);
 }
 
-void SetPuertas::agregarPersona( int numPuerta ) {
+void SetPuertas::agregarPersona( unsigned int numPuerta ) {
   if( numPuerta >= this->cantPuertas ) {
     log.error( "No existe puerta" );
     return;
@@ -74,7 +74,7 @@ void SetPuertas::agregarPersona( int numPuerta ) {
   log.info(ss.str().c_str());
 }
 
-bool SetPuertas::sacarPersona( int numPuerta ) {
+bool SetPuertas::sacarPersona( unsigned int numPuerta ) {
   if( numPuerta >= this->cantPuertas ) {
     log.error( "No existe puerta" );
     return false;
@@ -123,7 +123,7 @@ int SetPuertas::getGenteEnSistema() {
   return count;
 }
 
-int SetPuertas::getCantidadDePersonas( int numPuerta ) {
+int SetPuertas::getCantidadDePersonas( unsigned int numPuerta ) {
   int count = semctl(this->semId, numPuerta, GETVAL );
 
   //std::stringstream ss;
@@ -133,10 +133,7 @@ int SetPuertas::getCantidadDePersonas( int numPuerta ) {
   return count;
 }
 
-int SetPuertas::getCantidadDePuertas() {
+unsigned int SetPuertas::getCantidadDePuertas() {
   return this->cantPuertas;
 }
-
-
-
 

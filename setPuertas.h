@@ -8,22 +8,22 @@
 
 class SetPuertas {
   public:
-    SetPuertas(int cantPuertas);
+    SetPuertas(unsigned int cantPuertas);
     ~SetPuertas();
 
-    void agregarPersona( int numPuerta );
-    bool sacarPersona( int numPuerta );
-    int getCantidadDePersonas( int numPuerta );
-    int getCantidadDePuertas();
+    void agregarPersona( unsigned int numPuerta );
+    bool sacarPersona( unsigned int numPuerta );
+    int getCantidadDePersonas( unsigned int numPuerta );
+    unsigned int getCantidadDePuertas();
     int getGenteEnSistema();
     int waitGenteEnSistema();
   private:
 
-    int cantPuertas;
+    unsigned int cantPuertas;
     int semId;
     Logger log;
 
-};    
+};
 
 
 #endif
