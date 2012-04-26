@@ -10,12 +10,16 @@ template <class T> const T& min ( const T& a, const T& b ) {
     return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
 }
 
-LiftController::LiftController(SetPuertas *puertas, unsigned int numberOfFloors) : log("LiftController") , busyFloors(numberOfFloors, 0), requestedFloors(numberOfFloors, 0) {
+LiftController::LiftController(SetPuertas *puertas) :
+  log("LiftController") ,
+  busyFloors(puertas->getCantidadDePuertas(), 0),
+  requestedFloors(puertas->getCantidadDePuertas(), 0) {
+
   this->puertas = puertas;
-  this->numberOfFloors = numberOfFloors;
+  this->numberOfFloors = puertas->getCantidadDePuertas();
   peopleTravelling = 0;
   nextFloor = currentFloor = 0;
-  movingDirection = NOT_MOVING;
+  movingDirection = END_MOVING;
   lugarDisponible = 7;
   // cierra los pipes que no necesita
 }
@@ -25,7 +29,7 @@ int LiftController::work() {
 
   while(simRunning()) {
     waitGenteEnElSistema();
-    while ( determinarDireccionDeMovimiento() != NOT_MOVING ) {
+    while ( determinarDireccionDeMovimiento() != END_MOVING ) {
       viajarUnPiso();
       bajarPersonas();
       subirPersonas();
@@ -61,10 +65,12 @@ void signalRegister( int sigNum, void (*handler)(int) ) {
 MovingDirection LiftController::determinarDireccionDeMovimiento() {
   refreshBusyFloors();
   updateMovingDirection();
-  nextFloor = currentFloor + (int)movingDirection;
-  std::stringstream ss;
-  ss << "Current floor: " << currentFloor << " Next floor: " << nextFloor;
-  log.debug(ss.str().c_str());
+  if ( movingDirection != END_MOVING ) {
+    nextFloor = currentFloor + (int)movingDirection;
+    std::stringstream ss;
+    ss << "Current floor: " << currentFloor << " Next floor: " << nextFloor;
+    log.debug(ss.str().c_str());
+  }
   return movingDirection;
 }
 
@@ -77,7 +83,7 @@ void LiftController::refreshBusyFloors() {
 void LiftController::updateMovingDirection() {
   int nearestFloor = currentFloor;
   switch ( movingDirection ) {
-    case NOT_MOVING: case UP:
+    case END_MOVING: case UP: case NOT_MOVING:
       nearestFloor = findNearestAbove();
       if (nearestFloor == -1) {
         nearestFloor = findNearestBelow();
@@ -90,21 +96,23 @@ void LiftController::updateMovingDirection() {
       }
   }
 
-  movingDirection = nearestFloor == -1 ?  NOT_MOVING :
+  movingDirection = nearestFloor == -1 ?  END_MOVING :
     nearestFloor > (int)currentFloor ? UP :
     nearestFloor < (int)currentFloor ? DOWN : NOT_MOVING;
 }
 
 void LiftController::viajarUnPiso() {
-  // subirOBajarTimer();
-  // esperarFinTimer();
-  sleep(3);
-  currentFloor = currentFloor + (int)movingDirection;
+  if ( movingDirection != NOT_MOVING ) {
+    // subirOBajarTimer();
+    // esperarFinTimer();
+    sleep(3);
+    currentFloor = currentFloor + (int)movingDirection;
+  }
 }
 
 int LiftController::findNearestAbove() {
   int nearest = -1;
-  unsigned int currentFloor = this->currentFloor + 1;
+  unsigned int currentFloor = this->currentFloor;
   while (nearest == -1 && currentFloor < numberOfFloors ) {
     if ( requestedFloors.at(currentFloor) > 0 || 
         (busyFloors.at(currentFloor) > 0 && !this->isFull()) ) {
@@ -118,7 +126,7 @@ int LiftController::findNearestAbove() {
 
 int LiftController::findNearestBelow() {
   int nearest = - 1;
-  unsigned int currentFloor = this->currentFloor - 1;
+  unsigned int currentFloor = this->currentFloor;
   while (nearest == - 1 && currentFloor < numberOfFloors ) {
     if ( requestedFloors.at(currentFloor) > 0 || 
         (busyFloors.at(currentFloor) > 0 && !this->isFull()) ) {

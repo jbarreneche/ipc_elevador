@@ -8,11 +8,11 @@
 
 #include "logger.h"
 
-enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 1 };
+enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 1, END_MOVING };
 
 class LiftController {
   public:
-    LiftController(SetPuertas *puertas, unsigned int numberOfFloors);
+    LiftController(SetPuertas *puertas);
     int work();
     ~LiftController();
 
