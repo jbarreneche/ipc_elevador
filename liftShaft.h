@@ -11,8 +11,9 @@
 
 class LiftShaft {
   public:
-    LiftShaft(SetPuertas *puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
-      liftController(puertas, capacidadAscensor), log("LiftShaft") {
+    LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
+      puertas(puertas), log("LiftShaft") {
+      this->capacidadAscensor = capacidadAscensor;
       // initPipes();
     }
 
@@ -22,9 +23,11 @@ class LiftShaft {
       switch (pid = fork()) {
         case -1:
           return -1;
-        case 0:
-          log.debug("run liftController");
-          return liftController.work();
+        case 0: {
+                  LiftController liftController(puertas, capacidadAscensor);
+                  log.debug("run liftController");
+                  return liftController.work();
+                }
         default:	
           log.debug("run timer");
 
@@ -38,7 +41,8 @@ class LiftShaft {
     }
 
   private:
-    LiftController liftController; // recibe sems y pipes
+    SetPuertas puertas;
+    unsigned int capacidadAscensor;
     Logger log;
 };
 

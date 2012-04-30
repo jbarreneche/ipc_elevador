@@ -45,13 +45,13 @@ int main(int argc, char **argv) {
 
     case 0:
       {
-        LiftShaft l(&puertas, configuracion.delayEntrePiso, configuracion.capacidadAscensor); // recibe los semaforos ??
+        LiftShaft l(puertas, configuracion.delayEntrePiso, configuracion.capacidadAscensor); // recibe los semaforos ??
         return l.run();
       }
 
     default:
       {
-        PeopleGenerator g(&puertas); // recibe los semaforos ??  y TTotal de simulacion
+        PeopleGenerator g(puertas); // recibe los semaforos ??  y TTotal de simulacion
         g.run(configuracion.tiempoSimulacion, pid);
 
       }

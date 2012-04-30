@@ -12,7 +12,7 @@ enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 1, STOPPED };
 
 class LiftController {
   public:
-    LiftController(SetPuertas *puertas, unsigned int capacidad);
+    LiftController(SetPuertas puertas, unsigned int capacidad);
     int work();
     ~LiftController();
 
@@ -26,7 +26,7 @@ class LiftController {
     Logger log;
     static volatile sig_atomic_t continuarSimulacion;
 
-    SetPuertas *puertas;
+    SetPuertas puertas;
     unsigned int peopleTravelling, numberOfFloors, lugarDisponible;
     unsigned int nextFloor, currentFloor;
     MovingDirection movingDirection;

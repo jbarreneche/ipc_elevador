@@ -10,13 +10,13 @@ template <class T> const T& min ( const T& a, const T& b ) {
     return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
 }
 
-LiftController::LiftController(SetPuertas *puertas, unsigned int capacidad) :
+LiftController::LiftController(SetPuertas puertas, unsigned int capacidad) :
   log("LiftController") ,
-  busyFloors(puertas->getCantidadDePuertas(), 0),
-  requestedFloors(puertas->getCantidadDePuertas(), 0) {
+  puertas(puertas) ,
+  busyFloors(puertas.getCantidadDePuertas(), 0),
+  requestedFloors(puertas.getCantidadDePuertas(), 0) {
 
-  this->puertas = puertas;
-  this->numberOfFloors = puertas->getCantidadDePuertas();
+  numberOfFloors = puertas.getCantidadDePuertas();
   peopleTravelling = 0;
   nextFloor = currentFloor = 0;
   movingDirection = STOPPED;
@@ -42,7 +42,7 @@ int LiftController::work() {
 
 void LiftController::waitGenteEnElSistema() {
 	log.info( "Esperando que entre mas gente" );
-  puertas->waitGenteEnSistema();
+  puertas.waitGenteEnSistema();
 	log.info( "Hay gente!!" );
 }
 
@@ -76,7 +76,7 @@ MovingDirection LiftController::determinarDireccionDeMovimiento() {
 
 void LiftController::refreshBusyFloors() {
   for ( unsigned int i = 0; i < busyFloors.size() ; i ++ ) {
-    busyFloors.at(i) = puertas->getCantidadDePersonas( i );
+    busyFloors.at(i) = puertas.getCantidadDePersonas( i );
   }
 }
 
@@ -153,7 +153,7 @@ void LiftController::subirPersonas() {
     log.info("Subiendo personas!!!");
     int total = min(busyFloors.at(currentFloor), lugarDisponible);
     for ( int i = 0 ; i < total ; i ++ ) {
-      puertas->sacarPersona( currentFloor );
+      puertas.sacarPersona( currentFloor );
       requestedFloors.at(randFloor()) ++ ;
     }
     busyFloors.at(currentFloor) = 0;

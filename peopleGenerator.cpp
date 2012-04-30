@@ -9,9 +9,8 @@
 #define DELTA_SLEEP 10
 #define MIN_SLEEP 3
 
-PeopleGenerator::PeopleGenerator(SetPuertas *puertas) : log("PeopleGenerator") {
-  this->puertas = puertas;
-}
+PeopleGenerator::PeopleGenerator(SetPuertas puertas) :
+  log("PeopleGenerator"), puertas(puertas) { }
 
 void PeopleGenerator::run(int simTime, pid_t pid) {
   this->pid = pid;
@@ -28,6 +27,6 @@ void PeopleGenerator::run(int simTime, pid_t pid) {
 }
 
 void PeopleGenerator::spawnPerson() {
-  puertas->agregarPersona( rand() % puertas->getCantidadDePuertas() );
+  puertas.agregarPersona( rand() % puertas.getCantidadDePuertas() );
 }
 
