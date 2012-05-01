@@ -63,17 +63,17 @@ int LiftController::work() {
     }
   }
   log.info( "Termino el LiftController" );
-  log.info( "Envio stop a timer" );
+  log.info( "Send exit to lift" );
   this->outPipe->escribir( LIFT_EXIT );
-  log.info( "Espero respuesta" );
   this->inPipe->leer( &buffer, 1 );
+
   log.info( "Termino el LiftController ok" );
   return 0;
 }
 
 void LiftController::waitGenteEnElSistema() {
 	log.info( "Esperando que entre mas gente" );
-  puertas.waitGenteEnSistema();
+	puertas.waitGenteEnSistema();
 	log.info( "Hay gente!!" );
 }
 
@@ -138,9 +138,9 @@ void LiftController::viajarUnPiso() {
   if ( movingDirection != NOT_MOVING ) {
     // subirOBajarTimer();
     // esperarFinTimer();
-    sleep(3);
-    //this->outPipe->escribir(LIFT_MOVE);
-    //this->inPipe->leer( &buffer, 1 );
+    //sleep(3);
+    this->outPipe->escribir(LIFT_MOVE);
+    this->inPipe->leer( &buffer, 1 );
     
     currentFloor = currentFloor + (int)movingDirection;
   }

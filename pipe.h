@@ -25,6 +25,7 @@ public:
 	int escribir ( const char dato );
 	int leer ( char* buffer,int buffSize );
 
+private:
 	int getFdLectura ();
 	int getFdEscritura ();
 

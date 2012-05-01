@@ -32,25 +32,24 @@ void Timer::start(pid_t killPid) {
   char buffer = LIFT_MOVE;
 
   while( buffer == LIFT_MOVE ) {
-	  log.info("wait data");
+
+	  log.info("wait from pipe");
 	  inPipe->leer( &buffer, 1 );
-	  log.info("Llego data");
+
 	  switch( buffer ) {
 	  case LIFT_MOVE:
-		  log.debug("lift->move");
-		  sleep(10);
-		  log.debug("lift->respondo");
+		  log.info("move");
+		  sleep(3);
 		  this->outPipe->escribir(LIFT_OK);
-		  log.debug("lift->end response");
 		  break;
 	  case LIFT_EXIT:
-		  log.debug("lift->exit");
+	  default:
+		  log.info("exit");
 		  this->outPipe->escribir(LIFT_OK);
-		  sleep(5);
 		  break;
 	  }
   }
-  log.debug("fin timer");
+  log.info("exit lift ok");
 
 
 }

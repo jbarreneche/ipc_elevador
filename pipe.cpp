@@ -1,5 +1,8 @@
 #include "pipe.h"
 
+#include <iostream>
+
+
 Pipe :: Pipe() {
 	pipe ( this->descriptores );
 	/*fcntl ( this->descriptors[0],F_SETFL,O_NONBLOCK );
@@ -76,4 +79,5 @@ void Pipe :: cerrar () {
 }
 
 Pipe::~Pipe() {
+	this->cerrar();
 }
