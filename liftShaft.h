@@ -7,7 +7,10 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/wait.h>
+
 #include "logger.h"
+#include "pipe.h"
 
 class LiftShaft {
   public:
@@ -20,21 +23,27 @@ class LiftShaft {
     int run() {
       log.debug("run liftShaft");
       pid_t pid;
+
+      Pipe liftToController;
+      Pipe controllerToLift;
+
       switch (pid = fork()) {
         case -1:
           return -1;
         case 0: {
-                  LiftController liftController(puertas, capacidadAscensor);
+		  LiftController liftController(puertas, capacidadAscensor, 
+						&liftToController, &controllerToLift);
                   log.debug("run liftController");
                   return liftController.work();
                 }
         default:	
           log.debug("run timer");
 
-          Timer t(30); // recibe pipes y parametros de tiempo
+          Timer t(30, &controllerToLift, &liftToController); // recibe pipes y parametros de tiempo
           t.start(pid);
           log.debug("waiting for son to finish");
           waitpid(pid, NULL, 0);
+          log.debug("waiting ok");
           return 0;
       }
 

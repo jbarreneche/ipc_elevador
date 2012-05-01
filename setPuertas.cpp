@@ -162,6 +162,9 @@ int SetPuertas::waitGenteEnSistema() {
   sb.sem_flg = 0;
   int result = semop(this->semId, &sb, 1);
 
+  if( result == -1 )
+    perror("semop");
+
   sb.sem_num = 1;
   sb.sem_op = 1;
   sb.sem_flg = 0;
@@ -169,6 +172,7 @@ int SetPuertas::waitGenteEnSistema() {
 
   if( result == -1 )
     perror("semop");
+
   return 0;
 }
 

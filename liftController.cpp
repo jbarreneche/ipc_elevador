@@ -2,12 +2,37 @@
 
 #include <stdio.h>
 #include <sstream>
+#include <stdlib.h>
+
+#include "timer.h"
 
 void signalRegister( int sigNum, void (*handler)(int) );
 volatile sig_atomic_t LiftController::continuarSimulacion = 1;
 
 template <class T> const T& min ( const T& a, const T& b ) {
     return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
+}
+
+LiftController::LiftController(SetPuertas puertas, unsigned int capacidad,
+			       Pipe* inPipe, Pipe* outPipe ) :
+  log("LiftController") ,
+  puertas(puertas) ,
+  busyFloors(puertas.getCantidadDePuertas(), 0),
+  requestedFloors(puertas.getCantidadDePuertas(), 0) {
+
+  numberOfFloors = puertas.getCantidadDePuertas();
+  peopleTravelling = 0;
+  nextFloor = currentFloor = 0;
+  movingDirection = STOPPED;
+  lugarDisponible = capacidad;
+  // cierra los pipes que no necesita
+
+  this->inPipe = inPipe;
+  this->outPipe = outPipe;
+
+  this->inPipe->setearModo(LECTURA);
+  this->outPipe->setearModo(ESCRITURA);
+
 }
 
 LiftController::LiftController(SetPuertas puertas, unsigned int capacidad) :
@@ -25,6 +50,8 @@ LiftController::LiftController(SetPuertas puertas, unsigned int capacidad) :
 }
 
 int LiftController::work() {
+  char buffer;
+
   signalRegister( SIGINT, LiftController::signalHandler ); 
 
   while(simRunning()) {
@@ -36,7 +63,11 @@ int LiftController::work() {
     }
   }
   log.info( "Termino el LiftController" );
-
+  log.info( "Envio stop a timer" );
+  this->outPipe->escribir( LIFT_EXIT );
+  log.info( "Espero respuesta" );
+  this->inPipe->leer( &buffer, 1 );
+  log.info( "Termino el LiftController ok" );
   return 0;
 }
 
@@ -102,15 +133,21 @@ void LiftController::updateMovingDirection() {
 }
 
 void LiftController::viajarUnPiso() {
+  char buffer;
+
   if ( movingDirection != NOT_MOVING ) {
     // subirOBajarTimer();
     // esperarFinTimer();
     sleep(3);
+    //this->outPipe->escribir(LIFT_MOVE);
+    //this->inPipe->leer( &buffer, 1 );
+    
     currentFloor = currentFloor + (int)movingDirection;
   }
 }
 
 int LiftController::findNearestAbove() {
+
   int nearest = -1;
   unsigned int currentFloor = this->currentFloor;
   while (nearest == -1 && currentFloor < numberOfFloors ) {

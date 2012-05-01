@@ -7,11 +7,13 @@
 #include "setPuertas.h"
 
 #include "logger.h"
+#include "pipe.h"
 
 enum MovingDirection { DOWN = -1, NOT_MOVING = 0, UP = 1, STOPPED };
 
 class LiftController {
   public:
+    LiftController(SetPuertas puertas, unsigned int capacidad, Pipe* inPipe, Pipe* outPipe);
     LiftController(SetPuertas puertas, unsigned int capacidad);
     int work();
     ~LiftController();
@@ -26,6 +28,9 @@ class LiftController {
     Logger log;
     static volatile sig_atomic_t continuarSimulacion;
 
+    Pipe* inPipe;
+    Pipe* outPipe;
+	
     SetPuertas puertas;
     unsigned int peopleTravelling, numberOfFloors, lugarDisponible;
     unsigned int nextFloor, currentFloor;
