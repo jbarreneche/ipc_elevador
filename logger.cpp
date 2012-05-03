@@ -11,14 +11,26 @@
 
 #define LOG_DEBUG
 
-Logger::Logger( char* processName, char* pathName ):file(pathName), processName(processName)  {
+int Logger::fdGlobalDebug = -1;
+
+Logger::Logger( char* processName, char* pathName ):
+	file(pathName), 
+	fileGlobalDebug(Logger::fdGlobalDebug),
+	processName(processName)  {
 }			       
 
 //logea a stdout
-Logger::Logger( const char* processName ):file(1), processName(processName)  {
+Logger::Logger( const char* processName )
+ :file(1), 
+	fileGlobalDebug(Logger::fdGlobalDebug),
+	processName(processName)  {
 }			       
 
-Logger::Logger():file(1), processName("")  {
+Logger::Logger():
+	file(1), 
+	fileGlobalDebug(Logger::fdGlobalDebug),
+	processName("") {
+
 }			       
 
 
@@ -45,6 +57,8 @@ void Logger::log( const char* tipoMsg, const char* msg ) {
 
   this->file.tomarLock();
   this->file.escribir( msgToPrint.c_str(), msgToPrint.length() );
+	Logger::fileGlobalDebug.escribir( msgToPrint.c_str(), 
+																		msgToPrint.length() );
   this->file.liberarLock();
 }
 

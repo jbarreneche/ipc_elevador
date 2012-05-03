@@ -34,7 +34,9 @@ class LiftShaft {
 		  LiftController liftController(puertas, capacidadAscensor, 
 						&liftToController, &controllerToLift);
                   log.debug("run liftController");
-                  return liftController.work();
+                  int result = liftController.work();
+									Logger::closeGlobalDebug();
+									return result;
                 }
         default:	
           log.debug("run Lift");
