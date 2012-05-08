@@ -136,12 +136,8 @@ void LiftController::viajarUnPiso() {
   char buffer;
 
   if ( movingDirection != NOT_MOVING ) {
-    // subirOBajarTimer();
-    // esperarFinTimer();
-    //sleep(3);
     this->outPipe->escribir(LIFT_MOVE);
     this->inPipe->leer( &buffer, 1 );
-    
     currentFloor = currentFloor + (int)movingDirection;
   }
 }

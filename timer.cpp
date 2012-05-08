@@ -39,7 +39,7 @@ void Timer::start(pid_t killPid) {
 	  switch( buffer ) {
 	  case LIFT_MOVE:
 		  log.info("move");
-		  sleep(3);
+		  sleep(speed);
 		  this->outPipe->escribir(LIFT_OK);
 		  break;
 	  case LIFT_EXIT:
