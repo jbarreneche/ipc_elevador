@@ -13,9 +13,9 @@
 
 #define LIFT_OK    'K'
 
-class Timer {
+class Lift {
   public:
-	Timer( int _speed, Pipe* inPipe, Pipe* outPipe );
+	Lift( int _speed, Pipe* inPipe, Pipe* outPipe );
 
 	void start(pid_t killPid);
 	static volatile sig_atomic_t killPid;

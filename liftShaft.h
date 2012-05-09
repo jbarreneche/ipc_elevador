@@ -41,7 +41,7 @@ class LiftShaft {
         default:	
           log.debug("run Lift");
 
-          Timer t(30, &controllerToLift, &liftToController); // recibe pipes y parametros de tiempo
+          Lift t(30, &controllerToLift, &liftToController); // recibe pipes y parametros de tiempo
           t.start(pid);
           log.debug("waiting for son to finish");
           waitpid(pid, NULL, 0);

@@ -2,9 +2,9 @@
 
 int signalRegister2( int sigNum, void (*handler)(int) );
 
-volatile sig_atomic_t Timer::killPid = 0;
+volatile sig_atomic_t Lift::killPid = 0;
 
-Timer::Timer( int _speed, Pipe* inPipe, Pipe* outPipe ) :
+Lift::Lift( int _speed, Pipe* inPipe, Pipe* outPipe ) :
 	log("Lift") {
 
 	this->speed = _speed;
@@ -16,15 +16,15 @@ Timer::Timer( int _speed, Pipe* inPipe, Pipe* outPipe ) :
 }
 
 void signalHandler( int signal ) {
-  if (Timer::killPid) {
-    kill(Timer::killPid, signal);
+  if (Lift::killPid) {
+    kill(Lift::killPid, signal);
   }
 
 }
 
-void Timer::start(pid_t killPid) {
-  Timer::killPid = killPid;
-  std::cout << "I will kill " << Timer::killPid << std::endl;
+void Lift::start(pid_t killPid) {
+  Lift::killPid = killPid;
+  std::cout << "I will kill " << Lift::killPid << std::endl;
   signalRegister2( SIGINT, &signalHandler );
 
   log.info( "start lift" );
