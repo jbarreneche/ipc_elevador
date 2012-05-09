@@ -57,8 +57,13 @@ void Logger::log( const char* tipoMsg, const char* msg ) {
 
   this->file.tomarLock();
   this->file.escribir( msgToPrint.c_str(), msgToPrint.length() );
-	Logger::fileGlobalDebug.escribir( msgToPrint.c_str(), 
-																		msgToPrint.length() );
   this->file.liberarLock();
+
+	if( Logger::fdGlobalDebug != -1 ) {
+		this->fileGlobalDebug.tomarLock();
+		this->fileGlobalDebug.escribir( msgToPrint.c_str(), 
+																		msgToPrint.length() );
+		this->fileGlobalDebug.liberarLock();
+	}
 }
 

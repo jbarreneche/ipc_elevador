@@ -33,13 +33,16 @@ void Lift::start(pid_t killPid) {
 
   while( buffer == LIFT_MOVE ) {
 
-	  log.info("wait from pipe");
+	  log.debug("waiting pipe");
 	  inPipe->leer( &buffer, 1 );
+
 
 	  switch( buffer ) {
 	  case LIFT_MOVE:
 		  log.info("move");
 		  sleep(speed);
+		  //sleep(2);
+			log.debug("move ok");
 		  this->outPipe->escribir(LIFT_OK);
 		  break;
 	  case LIFT_EXIT:

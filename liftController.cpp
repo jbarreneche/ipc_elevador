@@ -84,7 +84,7 @@ void signalRegister( int sigNum, void (*handler)(int) ) {
   struct sigaction sa;
 
   sa.sa_handler = handler;
-  sa.sa_flags = 0; // or SA_RESTART
+  sa.sa_flags = SA_RESTART;
   sigemptyset(&sa.sa_mask);
 
   if (sigaction(SIGINT, &sa, NULL) == -1) {
@@ -136,6 +136,7 @@ void LiftController::viajarUnPiso() {
   char buffer;
 
   if ( movingDirection != NOT_MOVING ) {
+		//sleep(2);
     this->outPipe->escribir(LIFT_MOVE);
     this->inPipe->leer( &buffer, 1 );
     currentFloor = currentFloor + (int)movingDirection;

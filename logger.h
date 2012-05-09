@@ -26,7 +26,8 @@ class Logger {
 								}
 
 	              static void closeGlobalDebug() {
-									close(fdGlobalDebug);
+									if( fdGlobalDebug != -1 )
+										close(fdGlobalDebug);
 									fdGlobalDebug = -1;
 								}
 
