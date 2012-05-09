@@ -92,6 +92,7 @@ void showHelp() {
   std::cout << "\t--sim-length -l=num\tset the length of simulation to num (has to be greater than 0)" << std::endl;
   std::cout << "\t--capacity -c=num\tset the capacity to num (has to be greater than 0)" << std::endl;
   std::cout << "\t--output -o=FILE\tsave log message to the file" << std::endl;
+  std::cout << "\t--speed -s=SPEED\tlift moving speed in m/s (changes floor-delay)" << std::endl;
 }
 
 Configuracion parseParams(int argc, char **argv) {
@@ -101,6 +102,7 @@ Configuracion parseParams(int argc, char **argv) {
     {"help",        no_argument, 0, 'h'},
     {"floors",      required_argument, 0, 'f'},
     {"floor-delay", required_argument, 0, 'd'},
+    {"speed",       required_argument, 0, 's'},
     {"sim-length",  required_argument, 0, 'l'},
     {"capacity",    required_argument, 0, 'c'},
     {"output",      required_argument, 0, 'o'},
@@ -108,6 +110,7 @@ Configuracion parseParams(int argc, char **argv) {
   };
   int option_index = 0;
   int c = -1;
+  int speed = 0;
 
   while (  (c = getopt_long(argc, argv, "hf:d:l:c:o:", long_options, &option_index)) != -1 ) {
     switch(c) {
@@ -129,6 +132,17 @@ Configuracion parseParams(int argc, char **argv) {
           std::cout << "Invalid floor delay: " << optarg << std::endl;
           exit(1);
         }
+        break;
+      case 's':
+        if(sscanf(optarg, "%u", &speed) <= 0) {
+          std::cout << "Invalid floor speed: " << optarg << std::endl;
+          exit(1);
+        }
+        if (speed <= 0) {
+          std::cout << "Invalid floor speed: " << optarg << std::endl;
+          exit(1);
+        }
+        configuracion.delayEntrePiso = 3 / speed;
         break;
       case 'l':
         if(sscanf(optarg, "%u", &configuracion.tiempoSimulacion) <= 0) {
