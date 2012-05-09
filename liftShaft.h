@@ -17,6 +17,7 @@ class LiftShaft {
     LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
       puertas(puertas), log("LiftShaft") {
       this->capacidadAscensor = capacidadAscensor;
+      this->tiempoEntrePisos = tiempoEntrePisos;
       // initPipes();
     }
 
@@ -41,7 +42,7 @@ class LiftShaft {
         default:	
           log.debug("run Lift");
 
-          Lift t(30, &controllerToLift, &liftToController); // recibe pipes y parametros de tiempo
+          Lift t(tiempoEntrePisos, &controllerToLift, &liftToController); // recibe pipes y parametros de tiempo
           t.start(pid);
           log.debug("waiting for son to finish");
           waitpid(pid, NULL, 0);
@@ -54,6 +55,7 @@ class LiftShaft {
   private:
     SetPuertas puertas;
     unsigned int capacidadAscensor;
+    unsigned int tiempoEntrePisos;
     Logger log;
 };
 

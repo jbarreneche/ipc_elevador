@@ -4,10 +4,10 @@ int signalRegister2( int sigNum, void (*handler)(int) );
 
 volatile sig_atomic_t Lift::killPid = 0;
 
-Lift::Lift( int _speed, Pipe* inPipe, Pipe* outPipe ) :
+Lift::Lift( unsigned int _delayEntrePisos, Pipe* inPipe, Pipe* outPipe ) :
 	log("Lift") {
 
-	this->speed = _speed;
+	this->delayEntrePisos = _delayEntrePisos;
 	this->inPipe = inPipe;
 	this->outPipe = outPipe;
 
@@ -38,13 +38,15 @@ void Lift::start(pid_t killPid) {
 
 
 	  switch( buffer ) {
-	  case LIFT_MOVE:
+	  case LIFT_MOVE: {
 		  log.info("move");
-		  sleep(speed);
+
+		  sleep( delayEntrePisos );
 		  //sleep(2);
-			log.debug("move ok");
+		  log.debug("move ok");
 		  this->outPipe->escribir(LIFT_OK);
 		  break;
+	  }
 	  case LIFT_EXIT:
 	  default:
 		  log.info("exit");

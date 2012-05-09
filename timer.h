@@ -13,15 +13,17 @@
 
 #define LIFT_OK    'K'
 
+#define DISTANCIA_PISOS   3
+
 class Lift {
   public:
-	Lift( int _speed, Pipe* inPipe, Pipe* outPipe );
+	Lift( unsigned int _delayEntrePisos, Pipe* inPipe, Pipe* outPipe );
 
 	void start(pid_t killPid);
 	static volatile sig_atomic_t killPid;
 
 private:
-	int speed;
+	unsigned int delayEntrePisos;
 	Pipe* inPipe;
 	Pipe* outPipe;
 	Logger log;
