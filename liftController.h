@@ -20,7 +20,9 @@ class LiftController {
 
     static void signalHandler( int signum) {
       LiftController::continuarSimulacion = 0;
-      std::cout << "SIGINT to LiftController (pid=" << getpid() << ")" << std::endl;
+
+      Logger signalLog( "LiftController" );
+      signalLog.debug("SIGINT to LiftControlle");
     }
 
   private:

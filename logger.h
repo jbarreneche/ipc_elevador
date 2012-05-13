@@ -37,7 +37,7 @@ class Logger {
                 LockFile file;
                 LockFile fileGlobalDebug;
                 std::string processName;  
-                void log( const char* tipoMsg, const char* msg ); 
+	void log( const char* tipoMsg, const char* msg, LockFile& file ); 
 };
 
 

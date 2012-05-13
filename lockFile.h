@@ -22,6 +22,8 @@ public:
 	int tomarLock ();
 	int liberarLock ();
 	int escribir ( const char* buffer,int buffsize );
+
+	int getFd();
 };
 
 #endif /* LOCKFILE_H_ */

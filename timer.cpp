@@ -1,5 +1,7 @@
 #include "timer.h"
 
+#include <sstream>
+
 int signalRegister2( int sigNum, void (*handler)(int) );
 
 volatile sig_atomic_t Lift::killPid = 0;
@@ -24,7 +26,11 @@ void signalHandler( int signal ) {
 
 void Lift::start(pid_t killPid) {
   Lift::killPid = killPid;
-  std::cout << "I will kill " << Lift::killPid << std::endl;
+
+  std::stringstream ss;
+  ss << "on SIGINT kill procces pid=" << Lift::killPid;
+  log.debug( ss.str().c_str() );
+
   signalRegister2( SIGINT, &signalHandler );
 
   log.info( "start lift" );
@@ -39,9 +45,11 @@ void Lift::start(pid_t killPid) {
 
 	  switch( buffer ) {
 	  case LIFT_MOVE: {
-		  log.info("move");
+		  log.info("En movimiento");
 
 		  sleep( delayEntrePisos );
+
+		  log.info("frenar");
 		  //sleep(2);
 		  log.debug("move ok");
 		  this->outPipe->escribir(LIFT_OK);
@@ -49,12 +57,12 @@ void Lift::start(pid_t killPid) {
 	  }
 	  case LIFT_EXIT:
 	  default:
-		  log.info("exit");
+		  log.debug("exit");
 		  this->outPipe->escribir(LIFT_OK);
 		  break;
 	  }
   }
-  log.info("exit lift ok");
+  log.debug("exit lift ok");
 
 
 }

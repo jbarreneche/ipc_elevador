@@ -146,7 +146,7 @@ bool SetPuertas::sacarPersona( unsigned int numPuerta ) {
   std::stringstream ss;
   //this->cantidadPersonas = (unsigned int *)shmat(shmId, NULL, 0);
   ss << "Saco persona de puerta " << numPuerta
-     << "\nContador: " << (*(cantidadPersonas + numPuerta));
+     << " Contador: " << (*(cantidadPersonas + numPuerta));
   log.info(ss.str().c_str());
 
   // Agregar mutex

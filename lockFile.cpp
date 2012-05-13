@@ -50,3 +50,6 @@ LockFile :: ~LockFile () {
 }
 
 
+int LockFile::getFd() {
+	return this->fd;
+}

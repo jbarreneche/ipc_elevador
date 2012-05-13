@@ -63,11 +63,11 @@ int LiftController::work() {
     }
   }
   log.info( "Termino el LiftController" );
-  log.info( "Send exit to lift" );
+  log.debug( "Send exit to lift" );
   this->outPipe->escribir( LIFT_EXIT );
   this->inPipe->leer( &buffer, 1 );
 
-  log.info( "Termino el LiftController ok" );
+  log.debug( "Termino el LiftController ok" );
   return 0;
 }
 
@@ -100,7 +100,7 @@ MovingDirection LiftController::determinarDireccionDeMovimiento() {
     nextFloor = currentFloor + (int)movingDirection;
     std::stringstream ss;
     ss << "Current floor: " << currentFloor << " Next floor: " << nextFloor;
-    log.debug(ss.str().c_str());
+    log.info(ss.str().c_str());
   }
   return movingDirection;
 }

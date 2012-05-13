@@ -35,35 +35,34 @@ Logger::Logger():
 
 
 void Logger::info( const char* msg ) {
-  this->log( "info ", msg );
+	this->log( "info ", msg, this->file );
+	this->log( "info", msg, this->fileGlobalDebug );
 }
 
 void Logger::error( const char* msg ) {
-  this->log( "error", msg );
+	this->log( "error", msg, this->file );
+	this->log( "error", msg, this->fileGlobalDebug );
 }
 
 void Logger::debug( const char* msg ) {
   #ifdef LOG_DEBUG
-  this->log( "debug", msg );
+	this->log( "debug", msg, this->fileGlobalDebug );
   #endif
 }
 
-void Logger::log( const char* tipoMsg, const char* msg ) {
+
+void Logger::log( const char* tipoMsg, const char* msg, LockFile& file ) {
   std::stringstream ss;
   ss << tipoMsg << "-" << processName << "(pid=" << getpid() << "): " << msg << std::endl;
 
   std::string msgToPrint;
   msgToPrint=ss.str();
 
-  this->file.tomarLock();
-  this->file.escribir( msgToPrint.c_str(), msgToPrint.length() );
-  this->file.liberarLock();
-
-	if( Logger::fdGlobalDebug != -1 ) {
-		this->fileGlobalDebug.tomarLock();
-		this->fileGlobalDebug.escribir( msgToPrint.c_str(), 
-																		msgToPrint.length() );
-		this->fileGlobalDebug.liberarLock();
-	}
+  if( file.getFd() != -1 ) {
+	  file.tomarLock();
+	  file.escribir( msgToPrint.c_str(), msgToPrint.length() );
+	  file.liberarLock();
+  }
 }
+
 
