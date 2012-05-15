@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 
+#define MAX_TIMESTAMP_LENGTH 20
 class Logger {
 	public:
 

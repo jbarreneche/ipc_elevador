@@ -47,7 +47,9 @@ void Lift::start(pid_t killPid) {
 	  case LIFT_MOVE: {
 		  log.info("En movimiento");
 
-		  sleep( delayEntrePisos );
+		  int tiempoRestante = delayEntrePisos;
+		  while( tiempoRestante > 0 )
+			  tiempoRestante = sleep( tiempoRestante );
 
 		  log.info("frenar");
 		  //sleep(2);

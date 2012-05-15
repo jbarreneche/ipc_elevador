@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/sem.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <string>
 #include <sstream>
@@ -53,7 +54,14 @@ void Logger::debug( const char* msg ) {
 
 void Logger::log( const char* tipoMsg, const char* msg, LockFile& file ) {
   std::stringstream ss;
-  ss << tipoMsg << "-" << processName << "(pid=" << getpid() << "): " << msg << std::endl;
+
+  char date[MAX_TIMESTAMP_LENGTH];
+  time_t timer = time(NULL);
+
+  if( strftime( date, MAX_TIMESTAMP_LENGTH, "%X", localtime(&timer) ) > 0 )
+	  ss << date;
+
+  ss << "- " << tipoMsg << "-" << processName << "(pid=" << getpid() << "): " << msg << std::endl;
 
   std::string msgToPrint;
   msgToPrint=ss.str();
