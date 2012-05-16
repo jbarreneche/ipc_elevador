@@ -20,9 +20,6 @@ class LiftController {
 
     static void signalHandler( int signum) {
       LiftController::continuarSimulacion = 0;
-
-      Logger signalLog( "LiftController" );
-      signalLog.debug("SIGINT to LiftControlle");
     }
 
   private:
