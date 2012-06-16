@@ -14,43 +14,8 @@
 
 class LiftShaft {
   public:
-    LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
-      puertas(puertas), log("LiftShaft") {
-      this->capacidadAscensor = capacidadAscensor;
-      this->tiempoEntrePisos = tiempoEntrePisos;
-      // initPipes();
-    }
-
-    int run() {
-      log.debug("run liftShaft");
-      pid_t pid;
-
-      Pipe liftToController;
-      Pipe controllerToLift;
-
-      switch (pid = fork()) {
-        case -1:
-          return -1;
-        case 0: {
-		  LiftController liftController(puertas, capacidadAscensor, 
-						&liftToController, &controllerToLift);
-                  log.debug("run liftController");
-                  int result = liftController.work();
-									Logger::closeGlobalDebug();
-									return result;
-                }
-        default:	
-          log.debug("run Lift");
-
-          Lift t(tiempoEntrePisos, &controllerToLift, &liftToController); // recibe pipes y parametros de tiempo
-          t.start(pid);
-          log.debug("waiting for son to finish");
-          waitpid(pid, NULL, 0);
-
-          return 0;
-      }
-
-    }
+    LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor);
+    int run();
 
   private:
     SetPuertas puertas;
