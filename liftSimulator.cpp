@@ -19,14 +19,16 @@ typedef struct {
   unsigned int delayEntrePiso;
   unsigned int tiempoSimulacion;
   unsigned int capacidadAscensor;
+  unsigned int tiempoEntrePersona;
 	std::string fileDebug;
 } Configuracion;
 
 static Configuracion configuracionDefault = {
-   2, // Cantidad de Puertas
-   10, // Delay entre piso
-   10, // Duracion de la simulacion
-   1 // Capacidad del ascensor
+   5,  // Cantidad de pisos
+   5,  // Delay entre piso
+   20, // Duracion de la simulacion
+   4,  // Capacidad del ascensor
+   10  // Tiempo máximo entre persona y persona
 };
 
 Configuracion parseParams(int argc, char **argv);
@@ -34,20 +36,19 @@ Configuracion parseParams(int argc, char **argv);
 int main(int argc, char **argv) {
   srand ( time(NULL) );
   Configuracion configuracion = parseParams(argc, argv);
-	
+
 	if ( (configuracion.fileDebug.size() > 0) &&
 			 (!Logger::setGlobalDebug( configuracion.fileDebug.c_str() ) ) ) {
-		
-		std::cout << "Error al abrir el archivo de log :" << 
-		configuracion.fileDebug << 
+
+		std::cout << "Error al abrir el archivo de log :" <<
+		configuracion.fileDebug <<
 			std::endl;
-		
+
 		exit(0);
 	}
-		
-  Logger log;
+
+  Logger log; pid_t pid; int status;
   SetPuertas puertas(configuracion.cantidadDePuertas);
-  pid_t pid;
 
   log.debug( "start LiftSimulation" );
 
@@ -58,32 +59,30 @@ int main(int argc, char **argv) {
 			Logger::closeGlobalDebug();
       return(-1);
 
-    case 0:
-      {
-        LiftShaft l(puertas, configuracion.delayEntrePiso, configuracion.capacidadAscensor); // recibe los semaforos ??
-        int result = l.run();
-				Logger::closeGlobalDebug();
-				return result;
-      }
+    case 0: {
+      LiftShaft shaft(puertas, configuracion.delayEntrePiso, configuracion.capacidadAscensor);
+      status = shaft.run();
+			Logger::closeGlobalDebug();
+			return status;
+    }
 
-    default:
-      {
-        PeopleGenerator g(puertas); // recibe los semaforos ??  y TTotal de simulacion
-        g.run(configuracion.tiempoSimulacion, pid);
+    default: {
+      PeopleGenerator generador(configuracion.tiempoEntrePersona, puertas);
+      generador.run(configuracion.tiempoSimulacion, pid);
 
-      }
-      waitpid(pid, NULL, 0);
+      waitpid(pid, &status, 0);
+    }
   }
 
 	Logger::closeGlobalDebug();
-  return 0;
+  return status;
 }
 
 void showHelp() {
   std::cout << "Usage: liftSim " <<
     " [--help|-h] [--floors|-f=num] [--floor-delay|-d=num]  " <<
-    " [--sim-length|-l=num] [--capacity|-c=num]" << 
-		" [--output|-o=FILE]" << 
+    " [--sim-length|-l=num] [--capacity|-c=num]" <<
+		" [--output|-o=FILE]" <<
     std::endl;
 
   std::cout << "\t--help -h\t\tshow this help" << std::endl;
@@ -91,6 +90,7 @@ void showHelp() {
   std::cout << "\t--floor-delay -d=num\tset the delay between floors to num (has to be greater than 0)" << std::endl;
   std::cout << "\t--sim-length -l=num\tset the length of simulation to num (has to be greater than 0)" << std::endl;
   std::cout << "\t--capacity -c=num\tset the capacity to num (has to be greater than 0)" << std::endl;
+  std::cout << "\t--gen-delay -g=num\tset the maximum delay between each generated person (has to be greater than 0)" << std::endl;
   std::cout << "\t--output -o=FILE\tsave log message to the file" << std::endl;
   std::cout << "\t--speed -s=SPEED\tlift moving speed in m/s (changes floor-delay)" << std::endl;
 }
@@ -105,6 +105,7 @@ Configuracion parseParams(int argc, char **argv) {
     {"speed",       required_argument, 0, 's'},
     {"sim-length",  required_argument, 0, 'l'},
     {"capacity",    required_argument, 0, 'c'},
+    {"gen-delay",   required_argument, 0, 'g'},
     {"output",      required_argument, 0, 'o'},
     {0, 0, 0, 0}
   };
@@ -153,6 +154,12 @@ Configuracion parseParams(int argc, char **argv) {
       case 'c':
         if(sscanf(optarg, "%u", &configuracion.capacidadAscensor) <= 0) {
           std::cout << "Invalid capacity: " << optarg << std::endl;
+          exit(1);
+        }
+        break;
+      case 'g':
+        if(sscanf(optarg, "%u", &configuracion.tiempoEntrePersona) <= 0) {
+          std::cout << "Invalid generator delay: " << optarg << std::endl;
           exit(1);
         }
         break;

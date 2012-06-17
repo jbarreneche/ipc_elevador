@@ -8,7 +8,8 @@
 
 class PeopleGenerator {
   public:
-    PeopleGenerator(SetPuertas puertas);
+
+    PeopleGenerator(int peopleTime, SetPuertas puertas);
 
     void run(int simTime, pid_t pid);
 
@@ -16,6 +17,7 @@ class PeopleGenerator {
     pid_t pid;
     Logger log;
     SetPuertas puertas;
+    int peopleTime;
     void spawnPerson();
 };
 

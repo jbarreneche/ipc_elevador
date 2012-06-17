@@ -29,7 +29,7 @@ class LiftController {
 
     Pipe* inPipe;
     Pipe* outPipe;
-	
+
     SetPuertas puertas;
     unsigned int peopleTravelling, numberOfFloors, lugarDisponible;
     unsigned int nextFloor, currentFloor;
