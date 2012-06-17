@@ -1,10 +1,8 @@
 #include "liftController.h"
+#include "lift.h"
 
-#include <stdio.h>
 #include <sstream>
-#include <stdlib.h>
-
-#include "timer.h"
+#include <signal.h>
 
 void signalRegister( int sigNum, void (*handler)(int) );
 volatile sig_atomic_t LiftController::continuarSimulacion = 1;
@@ -15,17 +13,14 @@ template <class T> const T& min ( const T& a, const T& b ) {
 
 LiftController::LiftController(SetPuertas puertas, unsigned int capacidad,
 			       Pipe* inPipe, Pipe* outPipe ) :
-  log("LiftController") ,
-  puertas(puertas) ,
+  log("LiftController") , puertas(puertas) ,
   busyFloors(puertas.getCantidadDePuertas(), 0),
   requestedFloors(puertas.getCantidadDePuertas(), 0) {
 
+  peopleTravelling = nextFloor = currentFloor = 0;
   numberOfFloors = puertas.getCantidadDePuertas();
-  peopleTravelling = 0;
-  nextFloor = currentFloor = 0;
   movingDirection = STOPPED;
   lugarDisponible = capacidad;
-  // cierra los pipes que no necesita
 
   this->inPipe = inPipe;
   this->outPipe = outPipe;
@@ -35,24 +30,10 @@ LiftController::LiftController(SetPuertas puertas, unsigned int capacidad,
 
 }
 
-LiftController::LiftController(SetPuertas puertas, unsigned int capacidad) :
-  log("LiftController") ,
-  puertas(puertas) ,
-  busyFloors(puertas.getCantidadDePuertas(), 0),
-  requestedFloors(puertas.getCantidadDePuertas(), 0) {
-
-  numberOfFloors = puertas.getCantidadDePuertas();
-  peopleTravelling = 0;
-  nextFloor = currentFloor = 0;
-  movingDirection = STOPPED;
-  lugarDisponible = capacidad;
-  // cierra los pipes que no necesita
-}
-
 int LiftController::work() {
   char buffer;
 
-  signalRegister( SIGINT, LiftController::signalHandler ); 
+  signalRegister( SIGINT, LiftController::signalHandler );
 
   while(simRunning()) {
     waitGenteEnElSistema();
@@ -78,6 +59,7 @@ void LiftController::waitGenteEnElSistema() {
 }
 
 LiftController::~LiftController() {
+  //XXX No hay que cerrar los pipes?!?
 }
 
 void signalRegister( int sigNum, void (*handler)(int) ) {
@@ -136,7 +118,6 @@ void LiftController::viajarUnPiso() {
   char buffer;
 
   if ( movingDirection != NOT_MOVING ) {
-		//sleep(2);
     this->outPipe->escribir(LIFT_MOVE);
     this->inPipe->leer( &buffer, 1 );
     currentFloor = currentFloor + (int)movingDirection;
@@ -148,7 +129,7 @@ int LiftController::findNearestAbove() {
   int nearest = -1;
   unsigned int currentFloor = this->currentFloor;
   while (nearest == -1 && currentFloor < numberOfFloors ) {
-    if ( requestedFloors.at(currentFloor) > 0 || 
+    if ( requestedFloors.at(currentFloor) > 0 ||
         (busyFloors.at(currentFloor) > 0 && !this->isFull()) ) {
       nearest = currentFloor;
       break;
@@ -162,7 +143,7 @@ int LiftController::findNearestBelow() {
   int nearest = - 1;
   unsigned int currentFloor = this->currentFloor;
   while (nearest == - 1 && currentFloor < numberOfFloors ) {
-    if ( requestedFloors.at(currentFloor) > 0 || 
+    if ( requestedFloors.at(currentFloor) > 0 ||
         (busyFloors.at(currentFloor) > 0 && !this->isFull()) ) {
       nearest = currentFloor;
       break;

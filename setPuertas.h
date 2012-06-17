@@ -1,10 +1,6 @@
 #ifndef SET_PUERTAS
 #define SET_PUERTAS
 
-#include <iostream>
-#include <signal.h>
-#include <unistd.h>
-
 #include "logger.h"
 
 class SetPuertas {

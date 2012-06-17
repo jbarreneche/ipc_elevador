@@ -1,9 +1,5 @@
-#ifndef TIMER
-#define TIMER
-#include <signal.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
+#ifndef LIFT
+#define LIFT
 
 #include "pipe.h"
 #include "logger.h"
@@ -17,15 +13,14 @@
 
 class Lift {
   public:
-	Lift( unsigned int _delayEntrePisos, Pipe* inPipe, Pipe* outPipe );
+	Lift( unsigned int delayEntrePisos, Pipe* inPipe, Pipe* outPipe );
 
 	void start(pid_t killPid);
 	static volatile sig_atomic_t killPid;
 
-private:
+  private:
 	unsigned int delayEntrePisos;
-	Pipe* inPipe;
-	Pipe* outPipe;
+	Pipe *inPipe, *outPipe;
 	Logger log;
 };
 

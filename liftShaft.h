@@ -1,16 +1,8 @@
 #ifndef LIFT_SHAFT
 #define LIFT_SHAFT
 
-#include "liftController.h"
-#include "timer.h"
-#include <unistd.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/wait.h>
-
+#include "setPuertas.h"
 #include "logger.h"
-#include "pipe.h"
 
 class LiftShaft {
   public:
@@ -25,4 +17,3 @@ class LiftShaft {
 };
 
 #endif
-

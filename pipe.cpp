@@ -1,12 +1,9 @@
 #include "pipe.h"
 
-#include <iostream>
-
+#include <unistd.h>
 
 Pipe :: Pipe() {
 	pipe ( this->descriptores );
-	/*fcntl ( this->descriptors[0],F_SETFL,O_NONBLOCK );
-	fcntl ( this->descriptors[1],F_SETFL,O_NONBLOCK );*/
 	this->lectura = true;
 	this->escritura = true;
 }

@@ -1,4 +1,7 @@
 #include "liftShaft.h"
+#include "lift.h"
+#include "liftController.h"
+#include "pipe.h"
 
 LiftShaft::LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
       puertas(puertas), log("LiftShaft") {

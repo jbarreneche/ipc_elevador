@@ -1,9 +1,7 @@
 #ifndef LOCKFILE_H_
 #define LOCKFILE_H_
 
-#include <unistd.h>
 #include <fcntl.h>
-#include <string.h>
 
 class LockFile {
 
@@ -12,7 +10,8 @@ private:
 	struct flock fl;
 	int fd;
 	char nombre [ 255 ];
-        bool closeFd;
+    bool closeFd;
+
 public:
 
 	LockFile ( char* nombre );
@@ -21,7 +20,7 @@ public:
 
 	int tomarLock ();
 	int liberarLock ();
-	int escribir ( const char* buffer,int buffsize );
+	int escribir ( const char* buffer, int buffsize );
 
 	int getFd();
 };

@@ -1,8 +1,6 @@
 #ifndef PEOPLE_GENERATOR
 #define PEOPLE_GENERATOR
 
-#include <signal.h>
-
 #include "logger.h"
 #include "setPuertas.h"
 

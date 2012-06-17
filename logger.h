@@ -3,9 +3,9 @@
 
 #include "lockFile.h"
 #include <string>
-#include <iostream>
 
 #define MAX_TIMESTAMP_LENGTH 20
+
 class Logger {
 	public:
 
@@ -13,15 +13,15 @@ class Logger {
                 //logea a stdout
                 Logger( const char* processName );
                 Logger();
-		
+
                 void info( const char* msg );
                 void error( const char* msg );
                 void debug( const char* msg );
 
 	              static bool setGlobalDebug(const char* file) {
 									if( fdGlobalDebug == -1 ) {
-										Logger::fdGlobalDebug = open ( file,O_CREAT|O_WRONLY,0777 );
-										return( Logger::fdGlobalDebug >= 0 );
+										Logger::fdGlobalDebug = open ( file, O_CREAT | O_WRONLY, 0777 );
+										return Logger::fdGlobalDebug >= 0;
 									}
 									return false;
 								}
@@ -37,8 +37,8 @@ class Logger {
 
                 LockFile file;
                 LockFile fileGlobalDebug;
-                std::string processName;  
-	void log( const char* tipoMsg, const char* msg, LockFile& file ); 
+                std::string processName;
+	void log( const char* tipoMsg, const char* msg, LockFile& file );
 };
 
 

@@ -1,16 +1,18 @@
 #include "lockFile.h"
 
-#include <iostream>
+#include <string.h>
+#include <unistd.h>
+
 LockFile :: LockFile ( char* nombre ) {
 
-	strcpy ( this->nombre,nombre );
+	strcpy ( this->nombre, nombre );
 
 	this->fl.l_type = F_WRLCK;
 	this->fl.l_whence = SEEK_SET;
 	this->fl.l_start = 0;
 	this->fl.l_len = 0;
 	this->fl.l_pid = getpid ();
-	this->fd = open ( this->nombre,O_CREAT|O_WRONLY,0777 );
+	this->fd = open ( this->nombre, O_CREAT | O_WRONLY , 0777 );
 	this->closeFd = true;
 }
 
@@ -25,8 +27,7 @@ LockFile::LockFile ( int fd ) {
 }
 
 int LockFile :: tomarLock () {
-
-        this->fl.l_type = F_WRLCK;
+    this->fl.l_type = F_WRLCK;
 	int resultado = fcntl ( this->fd,F_SETLKW,&(this->fl) );
 	return resultado;
 }

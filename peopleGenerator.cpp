@@ -1,10 +1,6 @@
 #include "peopleGenerator.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <unistd.h>
-#include <sys/sem.h>
+#include <signal.h>
 
 #define DELTA_SLEEP 10
 #define MIN_SLEEP 3

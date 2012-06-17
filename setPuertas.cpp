@@ -1,17 +1,10 @@
 #include "setPuertas.h"
 
 #include <sys/sem.h>
-#include <sys/ipc.h>
 #include <sys/shm.h>
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <sstream>
-#include <unistd.h>
 #include <errno.h>
-#include <signal.h>
-
-#include "logger.h"
 
 SetPuertas::SetPuertas(const SetPuertas &copy) :
   log(copy.log)
@@ -58,7 +51,7 @@ SetPuertas::SetPuertas(unsigned int cantPuertas): log("SetPuertas") {
 
   } else if (errno == EEXIST) { /* someone else got it first */
     semid = semget(key, 2, 0); /* get the id */
-    if (semid < 0) 
+    if (semid < 0)
       perror("ya existen");
   }
 
@@ -102,7 +95,7 @@ void SetPuertas::agregarPersona( unsigned int numPuerta ) {
   (*(cantidadPersonas + numPuerta))++;
   unlockSharedMemory();
 
-  struct sembuf dataop;	
+  struct sembuf dataop;
   //actualiza la cantidad total de personas en el sistema
   dataop.sem_num = 1;
   dataop.sem_op =  1;
@@ -135,7 +128,7 @@ bool SetPuertas::sacarPersona( unsigned int numPuerta ) {
     return false;
   }
 
-  struct sembuf dataop;	
+  struct sembuf dataop;
   //actualiza la cantidad total de personas en el sistema
   dataop.sem_num = 1;
   dataop.sem_op =  -1;

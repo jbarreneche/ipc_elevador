@@ -1,16 +1,10 @@
+#include "logger.h"
 #include "liftShaft.h"
 #include "peopleGenerator.h"
-#include <sys/sem.h>
-#include <sys/ipc.h>
+#include "setPuertas.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
 #include <errno.h>
-#include <signal.h>
-#include <string>
-
-#include "logger.h"
+#include <iostream>
 
 #include <getopt.h>
 

@@ -1,13 +1,5 @@
 #include "logger.h"
 
-#include <iostream>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/sem.h>
-#include <stdlib.h>
-#include <time.h>
-
-#include <string>
 #include <sstream>
 
 #define LOG_DEBUG
@@ -15,25 +7,24 @@
 int Logger::fdGlobalDebug = -1;
 
 Logger::Logger( char* processName, char* pathName ):
-	file(pathName), 
+	file(pathName),
 	fileGlobalDebug(Logger::fdGlobalDebug),
 	processName(processName)  {
-}			       
+}
 
 //logea a stdout
-Logger::Logger( const char* processName )
- :file(1), 
+Logger::Logger( const char* processName ):
+	file(1),
 	fileGlobalDebug(Logger::fdGlobalDebug),
 	processName(processName)  {
-}			       
+}
 
 Logger::Logger():
-	file(1), 
+	file(1),
 	fileGlobalDebug(Logger::fdGlobalDebug),
 	processName("") {
 
-}			       
-
+}
 
 void Logger::info( const char* msg ) {
 	this->log( "info ", msg, this->file );

@@ -1,15 +1,16 @@
-#include "timer.h"
+#include "lift.h"
 
+#include <signal.h>
 #include <sstream>
 
 int signalRegister2( int sigNum, void (*handler)(int) );
 
 volatile sig_atomic_t Lift::killPid = 0;
 
-Lift::Lift( unsigned int _delayEntrePisos, Pipe* inPipe, Pipe* outPipe ) :
+Lift::Lift( unsigned int delayEntrePisos, Pipe* inPipe, Pipe* outPipe ) :
 	log("Lift") {
 
-	this->delayEntrePisos = _delayEntrePisos;
+	this->delayEntrePisos = delayEntrePisos;
 	this->inPipe = inPipe;
 	this->outPipe = outPipe;
 
@@ -21,7 +22,6 @@ void signalHandler( int signal ) {
   if (Lift::killPid) {
     kill(Lift::killPid, signal);
   }
-
 }
 
 void Lift::start(pid_t killPid) {
@@ -42,7 +42,6 @@ void Lift::start(pid_t killPid) {
 	  log.debug("waiting pipe");
 	  inPipe->leer( &buffer, 1 );
 
-
 	  switch( buffer ) {
 	  case LIFT_MOVE: {
 		  log.info("En movimiento");
@@ -52,8 +51,6 @@ void Lift::start(pid_t killPid) {
 			  tiempoRestante = sleep( tiempoRestante );
 
 		  log.info("frenar");
-		  //sleep(2);
-		  log.debug("move ok");
 		  this->outPipe->escribir(LIFT_OK);
 		  break;
 	  }
@@ -65,7 +62,6 @@ void Lift::start(pid_t killPid) {
 	  }
   }
   log.debug("exit lift ok");
-
 
 }
 
