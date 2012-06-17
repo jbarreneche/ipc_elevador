@@ -7,6 +7,11 @@
 void signalRegister( int sigNum, void (*handler)(int) );
 volatile sig_atomic_t LiftController::continuarSimulacion = 1;
 
+static liftControlledState initialState = {
+  0, 0,
+  STOPPED
+};
+
 template <class T> const T& min ( const T& a, const T& b ) {
     return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
 }
@@ -14,12 +19,12 @@ template <class T> const T& min ( const T& a, const T& b ) {
 LiftController::LiftController(SetPuertas puertas, unsigned int capacidad,
 			       Pipe* inPipe, Pipe* outPipe ) :
   log("LiftController") , puertas(puertas) ,
+  liftStates(1, initialState),
   busyFloors(puertas.getCantidadDePuertas(), 0),
   requestedFloors(puertas.getCantidadDePuertas(), 0) {
 
-  peopleTravelling = nextFloor = currentFloor = 0;
+  peopleTravelling = currentLift = 0;
   numberOfFloors = puertas.getCantidadDePuertas();
-  movingDirection = STOPPED;
   lugarDisponible = capacidad;
 
   this->inPipe = inPipe;
@@ -37,10 +42,12 @@ int LiftController::work() {
 
   while(simRunning()) {
     waitGenteEnElSistema();
-    while ( determinarDireccionDeMovimiento() != STOPPED ) {
-      viajarUnPiso();
-      bajarPersonas();
-      subirPersonas();
+    liftControlledState *liftState = &liftStates[currentLift];
+    while ( determinarDireccionDeMovimiento(*liftState) != STOPPED ) {
+      // logLiftState(*liftState);
+      viajarUnPiso(*liftState);
+      bajarPersonas(*liftState);
+      subirPersonas(*liftState);
     }
   }
   log.info( "Termino el LiftController" );
@@ -75,16 +82,16 @@ void signalRegister( int sigNum, void (*handler)(int) ) {
   }
 }
 
-MovingDirection LiftController::determinarDireccionDeMovimiento() {
+MovingDirection LiftController::determinarDireccionDeMovimiento(liftControlledState &state) {
   refreshBusyFloors();
-  updateMovingDirection();
-  if ( movingDirection != STOPPED ) {
-    nextFloor = currentFloor + (int)movingDirection;
+  updateMovingDirection(state);
+  if ( state.movingDirection != STOPPED ) {
+    state.nextFloor = state.currentFloor + (int)state.movingDirection;
     std::stringstream ss;
-    ss << "Current floor: " << currentFloor << " Next floor: " << nextFloor;
+    ss << "Current floor: " << state.currentFloor << " Next floor: " << state.nextFloor;
     log.info(ss.str().c_str());
   }
-  return movingDirection;
+  return state.movingDirection;
 }
 
 void LiftController::refreshBusyFloors() {
@@ -93,41 +100,41 @@ void LiftController::refreshBusyFloors() {
   }
 }
 
-void LiftController::updateMovingDirection() {
-  int nearestFloor = currentFloor;
-  switch ( movingDirection ) {
+void LiftController::updateMovingDirection(liftControlledState &state) {
+  int nearestFloor = state.currentFloor;
+  switch ( state.movingDirection ) {
     case STOPPED: case UP: case NOT_MOVING:
-      nearestFloor = findNearestAbove();
+      nearestFloor = findNearestAbove(state);
       if (nearestFloor == -1) {
-        nearestFloor = findNearestBelow();
+        nearestFloor = findNearestBelow(state);
       }
       break;
     case DOWN:
-      nearestFloor = findNearestBelow();
+      nearestFloor = findNearestBelow(state);
       if (nearestFloor == -1) {
-        nearestFloor = findNearestAbove();
+        nearestFloor = findNearestAbove(state);
       }
   }
 
-  movingDirection = nearestFloor == -1 ?  STOPPED :
-    nearestFloor > (int)currentFloor ? UP :
-    nearestFloor < (int)currentFloor ? DOWN : NOT_MOVING;
+  state.movingDirection = nearestFloor == -1 ?  STOPPED :
+    nearestFloor > (int)state.currentFloor ? UP :
+    nearestFloor < (int)state.currentFloor ? DOWN : NOT_MOVING;
 }
 
-void LiftController::viajarUnPiso() {
+void LiftController::viajarUnPiso(liftControlledState &state) {
   char buffer;
 
-  if ( movingDirection != NOT_MOVING ) {
+  if ( state.movingDirection != NOT_MOVING ) {
     this->outPipe->escribir(LIFT_MOVE);
     this->inPipe->leer( &buffer, 1 );
-    currentFloor = currentFloor + (int)movingDirection;
+    state.currentFloor = state.currentFloor + (int)state.movingDirection;
   }
 }
 
-int LiftController::findNearestAbove() {
+int LiftController::findNearestAbove(liftControlledState &state) {
 
   int nearest = -1;
-  unsigned int currentFloor = this->currentFloor;
+  unsigned int currentFloor = state.currentFloor;
   while (nearest == -1 && currentFloor < numberOfFloors ) {
     if ( requestedFloors.at(currentFloor) > 0 ||
         (busyFloors.at(currentFloor) > 0 && !this->isFull()) ) {
@@ -139,9 +146,9 @@ int LiftController::findNearestAbove() {
   return nearest;
 }
 
-int LiftController::findNearestBelow() {
+int LiftController::findNearestBelow(liftControlledState &state) {
   int nearest = - 1;
-  unsigned int currentFloor = this->currentFloor;
+  unsigned int currentFloor = state.currentFloor;
   while (nearest == - 1 && currentFloor < numberOfFloors ) {
     if ( requestedFloors.at(currentFloor) > 0 ||
         (busyFloors.at(currentFloor) > 0 && !this->isFull()) ) {
@@ -153,25 +160,25 @@ int LiftController::findNearestBelow() {
   return nearest;
 }
 
-void LiftController::bajarPersonas() {
+void LiftController::bajarPersonas(liftControlledState &state) {
   // Let people get out!!
-  if ( requestedFloors.at(currentFloor) > 0 ) {
+  if ( requestedFloors.at(state.currentFloor) > 0 ) {
     log.info("Bajando personas del ascensor");
-    lugarDisponible += requestedFloors.at(currentFloor);
-    requestedFloors.at(currentFloor) = 0;
+    lugarDisponible += requestedFloors.at(state.currentFloor);
+    requestedFloors.at(state.currentFloor) = 0;
   }
 }
 
-void LiftController::subirPersonas() {
+void LiftController::subirPersonas(liftControlledState &state) {
   // Let people in!!
-  if ( !this->isFull() && busyFloors.at(currentFloor) > 0 ) {
+  if ( !this->isFull() && busyFloors.at(state.currentFloor) > 0 ) {
     log.info("Subiendo personas!!!");
-    int total = min(busyFloors.at(currentFloor), lugarDisponible);
+    int total = min(busyFloors.at(state.currentFloor), lugarDisponible);
     for ( int i = 0 ; i < total ; i ++ ) {
-      puertas.sacarPersona( currentFloor );
-      requestedFloors.at(randFloor()) ++ ;
+      puertas.sacarPersona( state.currentFloor );
+      requestedFloors.at(randFloor(state.currentFloor)) ++ ;
     }
-    busyFloors.at(currentFloor) = 0;
+    busyFloors.at(state.currentFloor) = 0;
     lugarDisponible -= total;
   }
 }
@@ -180,11 +187,17 @@ bool LiftController::isFull() {
   return ( lugarDisponible == 0 );
 }
 
-unsigned int LiftController::randFloor() {
+unsigned int LiftController::randFloor(unsigned int excludeFloor) {
   unsigned int floor = rand() % (numberOfFloors - 1);
-  if (floor >= currentFloor) {
+  if (floor >= excludeFloor) {
     return floor + 1;
   } else {
     return floor;
   }
+}
+
+void LiftController::logLiftState(liftControlledState state) {
+  std::stringstream ss;
+  ss << "Lift(1) state: (CF: " << state.currentFloor << " NF:" << state.nextFloor << " MD:" << state.movingDirection << ")";
+  log.info(ss.str().c_str());
 }
