@@ -6,14 +6,17 @@
 class Person {
 
 public:
-	Person(int id, int fromFloor, int toFloor);
+	Person(int id, unsigned int fromFloor, unsigned int numberOfFloors);
 	Person(const Person&);
 	void startTravel();
 	void endTravel();
+	unsigned int getArrivalFloor();
+	bool travelsUp();
+	bool travelsDown();
 
 private:
 	int id;
-	int arrivalFloor, destinationFloor;
+	unsigned int arrivalFloor, destinationFloor;
 	time_t arrivedAt, startedTravelAt, endedTravelAt;
 };
 

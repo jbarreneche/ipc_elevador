@@ -2,20 +2,22 @@
 #define LIFT_CONTROLLER_MAILBOX_H_
 
 #include "person.h"
-#include "liftController.h"
-// #include "lift.h"
+#include "liftState.h"
+
+class LiftController;
 
 class LiftControllerMailbox {
 public:
 	LiftControllerMailbox();
 
 	void newPersonArrival(Person);
-	void liftArrival(liftControlledState);
-	void receiveMessage(LiftController &);
+	void newLiftArrival(LiftState);
+	void receiveMessage(LiftController*);
 
 private:
 	int queueId;
 };
 
+#include "liftController.h"
 
 #endif

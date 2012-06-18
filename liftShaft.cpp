@@ -1,7 +1,7 @@
 #include "liftShaft.h"
 #include "lift.h"
 #include "liftController.h"
-#include "pipe.h"
+// #include "pipe.h"
 
 LiftShaft::LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
       puertas(puertas), log("LiftShaft") {
@@ -12,9 +12,6 @@ LiftShaft::LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned
 int LiftShaft::run() {
   pid_t pid; int status;
 
-  Pipe liftToController;
-  Pipe controllerToLift;
-
   log.debug("run liftShaft");
 
   switch (pid = fork()) {
@@ -23,7 +20,7 @@ int LiftShaft::run() {
 
       log.debug("poniendo en marcha el Controller!");
 
-      LiftController liftController(puertas, capacidadAscensor, &liftToController, &controllerToLift);
+      LiftController liftController(puertas, capacidadAscensor);
       status = liftController.work();
       Logger::closeGlobalDebug(); // XXX: YUCK!
 
@@ -33,7 +30,7 @@ int LiftShaft::run() {
     default: {
       log.debug("poniendo en marcha el ascensor!");
 
-      Lift lift(tiempoEntrePisos, &controllerToLift, &liftToController);
+      Lift lift(1, tiempoEntrePisos);
       lift.start(pid);
 
       log.debug("esperando que el controller termine");

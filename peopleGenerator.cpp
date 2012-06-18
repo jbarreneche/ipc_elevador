@@ -2,8 +2,7 @@
 
 #include <signal.h>
 
-#define DELTA_SLEEP 10
-#define MIN_SLEEP 3
+#define MIN_SLEEP 1
 
 PeopleGenerator::PeopleGenerator(int peopleTime, SetPuertas puertas) :
   log("PeopleGenerator"), puertas(puertas) {

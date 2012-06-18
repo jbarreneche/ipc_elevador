@@ -7,15 +7,10 @@ int signalRegister2( int sigNum, void (*handler)(int) );
 
 volatile sig_atomic_t Lift::killPid = 0;
 
-Lift::Lift( unsigned int delayEntrePisos, Pipe* inPipe, Pipe* outPipe ) :
-	log("Lift") {
-
+Lift::Lift( unsigned int liftId, unsigned int delayEntrePisos) :
+	mailbox(liftId), state(liftId), log("Lift") {
 	this->delayEntrePisos = delayEntrePisos;
-	this->inPipe = inPipe;
-	this->outPipe = outPipe;
-
-	this->inPipe->setearModo(LECTURA);
-	this->outPipe->setearModo(ESCRITURA);
+  controller.newLiftArrival(state);
 }
 
 void signalHandler( int signal ) {
@@ -35,34 +30,37 @@ void Lift::start(pid_t killPid) {
 
   log.info( "start lift" );
 
-  char buffer = LIFT_MOVE;
-
-  while( buffer == LIFT_MOVE ) {
-
-	  log.debug("waiting pipe");
-	  inPipe->leer( &buffer, 1 );
-
-	  switch( buffer ) {
-	  case LIFT_MOVE: {
-		  log.info("En movimiento");
-
-		  int tiempoRestante = delayEntrePisos;
-		  while( tiempoRestante > 0 )
-			  tiempoRestante = sleep( tiempoRestante );
-
-		  log.info("frenar");
-		  this->outPipe->escribir(LIFT_OK);
-		  break;
-	  }
-	  case LIFT_EXIT:
-	  default:
-		  log.debug("exit");
-		  this->outPipe->escribir(LIFT_OK);
-		  break;
-	  }
+  running = true;
+  while( running ) {
+    mailbox.receiveMessage(this);
   }
+
   log.debug("exit lift ok");
 
+}
+
+void Lift::travel(MovingDirection direction) {
+  state.movingDirection = direction;
+  if (direction == DOWN || direction == UP) {
+    int tiempoRestante = delayEntrePisos;
+    while( tiempoRestante > 0 )
+      tiempoRestante = sleep( tiempoRestante );
+    state.currentFloor += state.getMovingDelta();
+    // Calc number of persons to get off
+  }
+  controller.newLiftArrival(state);
+}
+
+void Lift::getOn(Person person) {
+  // Add person to current state
+}
+
+void Lift::getOff() {
+  // Allow people wanting to get off on this floor
+}
+
+void Lift::end() {
+  running = false;
 }
 
 int signalRegister2( int sigNum, void (*handler)(int) ) {

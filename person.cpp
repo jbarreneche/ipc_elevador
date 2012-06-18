@@ -1,9 +1,18 @@
 #include "person.h"
+#include <stdlib.h>
 
-Person::Person(int id, int fromFloor, int toFloor) {
+unsigned int randFloor(unsigned int excludeFloor, unsigned int numberOfFloors) {
+  unsigned int floor = rand() % (numberOfFloors - 1);
+  if (floor >= excludeFloor) {
+    return floor + 1;
+  } else {
+    return floor;
+  }
+}
+Person::Person(int id, unsigned int fromFloor, unsigned int numberOfFloors) {
 	this->id = id;
 	this->arrivalFloor = fromFloor;
-	this->destinationFloor = toFloor;
+	this->destinationFloor = randFloor(fromFloor, numberOfFloors);
 	this->arrivedAt = time(NULL);
 }
 Person::Person(const Person& copy) {
@@ -21,4 +30,15 @@ void Person::startTravel() {
 
 void Person::endTravel() {
 	this->endedTravelAt = time(NULL);
+}
+unsigned int Person::getArrivalFloor() {
+	return arrivalFloor;
+}
+
+bool Person::travelsUp() {
+	return arrivalFloor < destinationFloor;
+}
+
+bool Person::travelsDown() {
+	return arrivalFloor > destinationFloor;
 }

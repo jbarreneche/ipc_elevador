@@ -8,21 +8,19 @@
 
 #include <getopt.h>
 
-typedef struct {
+typedef struct Configuracion {
   unsigned int cantidadDePuertas;
   unsigned int delayEntrePiso;
   unsigned int tiempoSimulacion;
   unsigned int capacidadAscensor;
   unsigned int tiempoEntrePersona;
 	std::string fileDebug;
-} Configuracion;
-
-static Configuracion configuracionDefault = {
-   5,  // Cantidad de pisos
-   5,  // Delay entre piso
-   20, // Duracion de la simulacion
-   4,  // Capacidad del ascensor
-   10  // Tiempo máximo entre persona y persona
+  Configuracion() :
+    cantidadDePuertas(5),
+    delayEntrePiso(5),
+    tiempoSimulacion(20),
+    capacidadAscensor(4),
+    tiempoEntrePersona(10) {};
 };
 
 Configuracion parseParams(int argc, char **argv);
@@ -90,7 +88,7 @@ void showHelp() {
 }
 
 Configuracion parseParams(int argc, char **argv) {
-  Configuracion configuracion = configuracionDefault;
+  Configuracion configuracion;
   struct option long_options[] =
   {
     {"help",        no_argument, 0, 'h'},

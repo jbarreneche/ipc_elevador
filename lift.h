@@ -2,6 +2,9 @@
 #define LIFT
 
 #include "pipe.h"
+#include "liftState.h"
+#include "liftMailbox.h"
+#include "liftControllerMailbox.h"
 #include "logger.h"
 
 #define LIFT_MOVE  'M'
@@ -13,14 +16,21 @@
 
 class Lift {
   public:
-	Lift( unsigned int delayEntrePisos, Pipe* inPipe, Pipe* outPipe );
+	static volatile sig_atomic_t killPid;
+	Lift(unsigned int liftId, unsigned int delayEntrePisos);
 
 	void start(pid_t killPid);
-	static volatile sig_atomic_t killPid;
+	void travel(MovingDirection);
+	void getOn(Person);
+	void getOff();
+	void end();
 
   private:
 	unsigned int delayEntrePisos;
-	Pipe *inPipe, *outPipe;
+	bool running;
+	LiftMailbox mailbox;
+	LiftControllerMailbox controller;
+	LiftState state;
 	Logger log;
 };
 
