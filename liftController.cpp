@@ -1,5 +1,4 @@
 #include "liftController.h"
-#include "lift.h"
 
 #include <sstream>
 #include <stdio.h>
@@ -10,11 +9,11 @@ template <class T> const T& min ( const T& a, const T& b ) {
     return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
 }
 
-LiftController::LiftController(SetPuertas puertas, unsigned int capacidad) :
-  log("LiftController") , puertas(puertas) ,
-  liftStates(1, LiftState(1)), liftMailboxes(2, LiftMailbox(1)) {
+LiftController::LiftController(unsigned int liftsCount) :
+  log("LiftController") ,
+  liftStates(liftsCount, LiftState(1)),
+  liftMailboxes(liftsCount, LiftMailbox(1)) {
 
-  numberOfFloors = puertas.getCantidadDePuertas();
 	this->continuarSimulacion = true;
 }
 

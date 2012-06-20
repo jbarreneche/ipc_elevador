@@ -1,7 +1,6 @@
 #include "logger.h"
 #include "liftShaft.h"
 #include "peopleGenerator.h"
-#include "setPuertas.h"
 
 #include <errno.h>
 #include <iostream>
@@ -44,7 +43,6 @@ int main(int argc, char **argv) {
 	}
 
   Logger log; pid_t pid; int status;
-  SetPuertas puertas(configuracion.cantidadDePuertas);
 
   log.debug( "start LiftSimulation" );
 
@@ -56,7 +54,7 @@ int main(int argc, char **argv) {
       return(-1);
 
     case 0: {
-      LiftShaft shaft(puertas, configuracion.delayEntrePiso, configuracion.capacidadAscensor);
+      LiftShaft shaft(configuracion.cantidadDePuertas, configuracion.delayEntrePiso, configuracion.capacidadAscensor);
       status = shaft.run();
 			Logger::closeGlobalDebug();
 			return status;
@@ -64,7 +62,7 @@ int main(int argc, char **argv) {
 
     default: {
       PeopleGenerator generador(configuracion.tiempoEntrePersona, configuracion.cantidadDePuertas);
-      generador.run(configuracion.tiempoSimulacion, pid);
+      generador.run(configuracion.tiempoSimulacion);
 
       waitpid(pid, &status, 0);
     }

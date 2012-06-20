@@ -2,8 +2,6 @@
 #define PEOPLE_GENERATOR
 
 #include "logger.h"
-#include "setPuertas.h"
-
 #include "liftControllerMailbox.h"
 
 class PeopleGenerator {
@@ -11,17 +9,17 @@ class PeopleGenerator {
 
     PeopleGenerator(int peopleTime, unsigned int numberOfFloors);
 
-    void run(int simTime, pid_t pid);
+    void run(int simTime);
 
   private:
-    pid_t pid;
     Logger log;
     int peopleTime;
+    unsigned int numberOfFloors;
+    unsigned int nextPersonId;
+    LiftControllerMailbox controllerMailBox;
+
     void spawnPerson();
 
-	  unsigned int numberOfFloors;
-	  unsigned int nextPersonId;
-	  LiftControllerMailbox controllerMailBox;
 };
 
 #endif

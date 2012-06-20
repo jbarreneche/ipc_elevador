@@ -11,8 +11,7 @@ PeopleGenerator::PeopleGenerator(int peopleTime, unsigned int numberOfFloors) :
 	this->nextPersonId = 0;
 }
 
-void PeopleGenerator::run(int simTime, pid_t pid) {
-  this->pid = pid;
+void PeopleGenerator::run(int simTime) {
   time_t start = time(NULL);
   time_t end = start + simTime;
 
@@ -26,8 +25,8 @@ void PeopleGenerator::run(int simTime, pid_t pid) {
 }
 
 void PeopleGenerator::spawnPerson() {
-  log.debug( "send person" );
-	Person p( this->nextPersonId, 
+  log.info( "send person" );
+	Person p( this->nextPersonId,
 						rand() % this->numberOfFloors,
 						this->numberOfFloors );
 

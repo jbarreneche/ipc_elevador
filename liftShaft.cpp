@@ -5,10 +5,11 @@
 
 #include <sys/wait.h>
 
-LiftShaft::LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
-      puertas(puertas), log("LiftShaft") {
+LiftShaft::LiftShaft(unsigned int cantidadPisos, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
+      log("LiftShaft") {
   this->capacidadAscensor = capacidadAscensor;
   this->tiempoEntrePisos = tiempoEntrePisos;
+  this->cantidadPisos = cantidadPisos;
 }
 
 int LiftShaft::run() {
