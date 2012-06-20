@@ -42,3 +42,7 @@ bool Person::travelsUp() {
 bool Person::travelsDown() {
 	return arrivalFloor > destinationFloor;
 }
+
+int Person::getId() {
+	return this->id;
+}

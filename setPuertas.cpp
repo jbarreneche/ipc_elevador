@@ -5,6 +5,8 @@
 
 #include <sstream>
 #include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 SetPuertas::SetPuertas(const SetPuertas &copy) :
   log(copy.log)

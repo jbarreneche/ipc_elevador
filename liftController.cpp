@@ -2,10 +2,9 @@
 #include "lift.h"
 
 #include <sstream>
-#include <signal.h>
-
-void signalRegister( int sigNum, void (*handler)(int) );
-volatile sig_atomic_t LiftController::continuarSimulacion = 1;
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
 
 template <class T> const T& min ( const T& a, const T& b ) {
     return (a>b)?b:a;     // or: return comp(a,b)?b:a; for the comp version
@@ -13,17 +12,16 @@ template <class T> const T& min ( const T& a, const T& b ) {
 
 LiftController::LiftController(SetPuertas puertas, unsigned int capacidad) :
   log("LiftController") , puertas(puertas) ,
-  liftStates(1, LiftState(0)) {
+  liftStates(1, LiftState(1)), liftMailboxes(2, LiftMailbox(1)) {
 
   numberOfFloors = puertas.getCantidadDePuertas();
-
+	this->continuarSimulacion = true;
 }
 
 int LiftController::work() {
-  signalRegister( SIGINT, LiftController::signalHandler );
 
   while(simRunning()) {
-   log.info( "Esperando que haya movimiento!" );
+		log.info( "Esperando que haya movimiento!" );
     mailbox.receiveMessage(this);
   }
   log.info( "Termino el LiftController" );
@@ -42,23 +40,11 @@ int LiftController::work() {
 
 LiftController::~LiftController() {}
 
-void signalRegister( int sigNum, void (*handler)(int) ) {
-  struct sigaction sa;
-
-  sa.sa_handler = handler;
-  sa.sa_flags = SA_RESTART;
-  sigemptyset(&sa.sa_mask);
-
-  if (sigaction(SIGINT, &sa, NULL) == -1) {
-    perror("sigaction");
-    exit(0);
-  }
-}
-
 void LiftController::newLiftArrival(LiftState liftState) {
   log.info( "Llegó un ascensor!" );
+
   unsigned int liftId = liftState.getLiftId();
-  liftStates[liftId] = liftState;
+  liftStates.insert( liftStates.begin()+liftId, liftState );
 
   if (liftState.hasPeopleToGetOff()) {
     liftMailboxes[liftId].getOff();
@@ -103,11 +89,11 @@ void LiftController::newPersonArrival(Person person) {
   for(state =  liftStates.begin();
       state != liftStates.end();
       state++) {
-
     if (state->goingTo(person.getArrivalFloor()))
       return;
   }
 
+	
   // Any lift not travelling? => put it to work
   for(int i = 0; i < liftStates.size(); i++) {
 
@@ -119,7 +105,8 @@ void LiftController::newPersonArrival(Person person) {
       liftMailboxes[i].travel(direction);
       return;
     }
-  }
+	}
+
 }
 
 bool LiftController::peopleWaitingUp(unsigned int currentFloor) {
@@ -197,4 +184,8 @@ void LiftController::getOnDown(unsigned int liftId) {
     }
     if(!found) break;
   }
+}
+
+void LiftController::endPeopleGenerator() {
+	this->continuarSimulacion = false;
 }

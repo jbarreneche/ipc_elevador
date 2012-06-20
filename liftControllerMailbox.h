@@ -13,6 +13,7 @@ public:
 	void newPersonArrival(Person);
 	void newLiftArrival(LiftState);
 	void receiveMessage(LiftController*);
+	void endPeopleGenerator();
 
 private:
 	int queueId;

@@ -8,6 +8,10 @@
 
 #include <getopt.h>
 
+#include <stdio.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+
 typedef struct Configuracion {
   unsigned int cantidadDePuertas;
   unsigned int delayEntrePiso;
@@ -59,7 +63,7 @@ int main(int argc, char **argv) {
     }
 
     default: {
-      PeopleGenerator generador(configuracion.tiempoEntrePersona, puertas);
+      PeopleGenerator generador(configuracion.tiempoEntrePersona, configuracion.cantidadDePuertas);
       generador.run(configuracion.tiempoSimulacion, pid);
 
       waitpid(pid, &status, 0);

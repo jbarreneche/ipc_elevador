@@ -10,6 +10,7 @@
 #include "liftMailbox.h"
 #include "liftControllerMailbox.h"
 
+
 class LiftController {
   public:
     LiftController(SetPuertas puertas, unsigned int capacidad);
@@ -18,15 +19,12 @@ class LiftController {
     int work();
     void newLiftArrival(LiftState);
     void newPersonArrival(Person);
-
-    static void signalHandler( int signum) {
-      LiftController::continuarSimulacion = 0;
-    }
+	  void endPeopleGenerator();
 
   private:
 
     Logger log;
-    static volatile sig_atomic_t continuarSimulacion;
+    bool continuarSimulacion;
 
     LiftControllerMailbox mailbox;
     SetPuertas puertas;
@@ -36,7 +34,7 @@ class LiftController {
     std::vector<LiftMailbox> liftMailboxes;
     std::vector<Person> peopleWaiting;
 
-    bool simRunning() { return ( LiftController::continuarSimulacion == 1 ); }
+	  bool simRunning() { return ( continuarSimulacion ); }
     bool peopleWaitingUp(unsigned int currentFloor);
     bool peopleWaitingDown(unsigned int currentFloor);
     void getOnUp(unsigned int liftId);

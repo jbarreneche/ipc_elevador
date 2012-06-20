@@ -4,6 +4,10 @@
 #include <sys/types.h>
 #include <sys/msg.h>
 
+#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+
 #define TRAVEL_MESSAGE 1L
 typedef struct travelMSG {
 	long mtype;
@@ -36,8 +40,19 @@ struct longMessage {
 };
 
 LiftMailbox::LiftMailbox(unsigned int liftId) {
-	key_t mailboxKey = ftok("controller", liftId);
-	queueId = msgget(mailboxKey, IPC_CREAT);
+	key_t mailboxKey = ftok("./liftSim", liftId);
+
+	if( mailboxKey == -1 ) {
+		perror("liftMailBox queueID:");
+		exit(1);
+	}
+
+	queueId = msgget(mailboxKey, 0666 | IPC_CREAT);
+
+	if( queueId == -1 ) {
+		perror("liftMailBox queueID:");
+		exit(1);
+	}
 }
 
 void LiftMailbox::travel(MovingDirection direction) {
@@ -76,6 +91,10 @@ void LiftMailbox::receiveMessage(Lift* lift) {
 		}
 		case GET_OFF_MESSAGE: {
 			lift->getOff();
+			break;
+		}
+		case END_WORK_MESSAGE: {
+			lift->end();
 			break;
 		}
 	}

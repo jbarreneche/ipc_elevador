@@ -3,6 +3,8 @@
 #include "liftController.h"
 // #include "pipe.h"
 
+#include <sys/wait.h>
+
 LiftShaft::LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
       puertas(puertas), log("LiftShaft") {
   this->capacidadAscensor = capacidadAscensor;
