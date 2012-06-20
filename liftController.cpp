@@ -34,6 +34,7 @@ int LiftController::work() {
     liftMailbox->endWork();
   }
 
+	this->mailbox.close();
   log.debug( "Termino el LiftController ok" );
   return 0;
 }

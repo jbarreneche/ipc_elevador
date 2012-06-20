@@ -100,3 +100,7 @@ void LiftMailbox::receiveMessage(Lift* lift) {
 	}
 
 }
+
+void LiftMailbox::close() {
+	msgctl( this->queueId, IPC_RMID, NULL );
+}

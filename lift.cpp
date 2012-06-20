@@ -17,6 +17,7 @@ void Lift::start(pid_t killPid) {
     mailbox.receiveMessage(this);
   }
 
+	this->mailbox.close();
   log.debug("exit lift ok");
 
 }

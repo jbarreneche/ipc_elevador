@@ -89,3 +89,7 @@ void LiftControllerMailbox::receiveMessage(LiftController *controller) {
 		}
 	}
 }
+
+void LiftControllerMailbox::close() {
+	msgctl( this->queueId, IPC_RMID, NULL );
+}

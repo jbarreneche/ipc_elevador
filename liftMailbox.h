@@ -15,6 +15,8 @@ public:
 	void endWork();
 	void receiveMessage(Lift*);
 
+	void close();
+
 private:
 	int queueId;
 };

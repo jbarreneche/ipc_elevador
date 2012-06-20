@@ -15,6 +15,7 @@ public:
 	void receiveMessage(LiftController*);
 	void endPeopleGenerator();
 
+	void close();
 private:
 	int queueId;
 };
