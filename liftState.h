@@ -19,6 +19,9 @@ public:
 	unsigned int getCurrentFloor();
 	MovingDirection getMovingDirection();
 
+	void getOn();
+	void getOff();
+
 	friend class Lift;
 
 private:

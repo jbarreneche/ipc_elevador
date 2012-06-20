@@ -15,6 +15,7 @@ public:
 	bool travelsDown();
 
 	int getId();
+
 private:
 	int id;
 	unsigned int arrivalFloor, destinationFloor;

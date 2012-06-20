@@ -3,6 +3,8 @@
 #include <sstream>
 #include <stdio.h>
 
+#include <iostream>
+
 Lift::Lift( unsigned int liftId, unsigned int delayEntrePisos) :
 	mailbox(liftId), state(liftId), log("Lift") {
 	this->delayEntrePisos = delayEntrePisos;
@@ -35,11 +37,25 @@ void Lift::travel(MovingDirection direction) {
 }
 
 void Lift::getOn(Person person) {
-  // Add person to current state
+	this->peopleTravelling.push_back(person);
+	state.getOn();
 }
 
+// Allow people wanting to get off on this floor
 void Lift::getOff() {
-  // Allow people wanting to get off on this floor
+	std::vector<Person>::iterator persons;
+	persons = peopleTravelling.begin();
+
+	while( persons != peopleTravelling.end() ) {
+	
+		if( state.getCurrentFloor() == persons->getArrivalFloor() ) {
+			state.getOff();
+			persons = peopleTravelling.erase(persons);
+		} else {
+			persons++;
+		}
+	}
+
 }
 
 void Lift::end() {

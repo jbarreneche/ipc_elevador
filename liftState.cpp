@@ -50,3 +50,11 @@ bool LiftState::goingTo(unsigned int floor) {
 		default: return false;
 	}
 }
+
+void LiftState::getOn() {
+	this->peopleToGetOff += 1;
+}
+
+void LiftState::getOff() {
+	this->peopleToGetOff -= 1;
+}

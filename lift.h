@@ -24,6 +24,7 @@ class Lift {
 	LiftMailbox mailbox;
 	LiftControllerMailbox controller;
 	LiftState state;
+	std::vector<Person> peopleTravelling;
 	Logger log;
 };
 

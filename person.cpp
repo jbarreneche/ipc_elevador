@@ -46,3 +46,5 @@ bool Person::travelsDown() {
 int Person::getId() {
 	return this->id;
 }
+
+
