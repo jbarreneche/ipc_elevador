@@ -7,8 +7,9 @@ class Lift;
 
 class LiftState {
 public:
-	LiftState(unsigned int liftId);
+	LiftState(unsigned int liftId = 0, unsigned int capacity = 0);
 	bool isFull();
+	bool isEmpty();
 	bool isMoving();
 	bool hasPeopleToGetOff();
 	bool goingTo(unsigned int floor);
@@ -19,14 +20,12 @@ public:
 	unsigned int getCurrentFloor();
 	MovingDirection getMovingDirection();
 
-	void getOn();
-	void getOff();
-
 	friend class Lift;
 
 private:
 	unsigned int liftId;
-	unsigned int availableSpace;
+	unsigned int totalCapacity;
+	unsigned int peopleRemaining;
 	unsigned int peopleToGetOff;
     unsigned int currentFloor;
     MovingDirection movingDirection;

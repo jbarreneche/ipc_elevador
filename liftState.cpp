@@ -1,10 +1,10 @@
 #include "liftState.h"
 
-LiftState::LiftState(unsigned int liftId) {
-	this->liftId = liftId;
-	availableSpace = peopleToGetOff = 0;
-	currentFloor = 0;
+LiftState::LiftState(unsigned int liftId, unsigned int capacity) {
+	this->liftId    = liftId;
 	movingDirection = NOT_MOVING;
+	totalCapacity   = capacity;
+	peopleToGetOff  = peopleRemaining = currentFloor = 0;
 }
 
 int LiftState::getMovingDelta() {
@@ -12,7 +12,11 @@ int LiftState::getMovingDelta() {
 }
 
 bool LiftState::isFull() {
-	return availableSpace == 0;
+	return totalCapacity <= peopleRemaining;
+}
+
+bool LiftState::isEmpty() {
+	return peopleRemaining <= 0;
 }
 
 bool LiftState::isMoving() {
@@ -28,7 +32,7 @@ unsigned int LiftState::getPeopleToGetOff() {
 }
 
 unsigned int LiftState::getAvailableSpace() {
-	return availableSpace;
+	return totalCapacity - peopleRemaining;
 }
 
 unsigned int LiftState::getLiftId() {
@@ -49,12 +53,4 @@ bool LiftState::goingTo(unsigned int floor) {
 		case DOWN: return floor < currentFloor;
 		default: return false;
 	}
-}
-
-void LiftState::getOn() {
-	this->peopleToGetOff += 1;
-}
-
-void LiftState::getOff() {
-	this->peopleToGetOff -= 1;
 }

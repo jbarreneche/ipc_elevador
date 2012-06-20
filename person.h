@@ -11,6 +11,7 @@ public:
 	void startTravel();
 	void endTravel();
 	unsigned int getArrivalFloor();
+	unsigned int getDestinationFloor();
 	bool travelsUp();
 	bool travelsDown();
 

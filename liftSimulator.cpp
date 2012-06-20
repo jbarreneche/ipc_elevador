@@ -19,8 +19,8 @@ typedef struct Configuracion {
   unsigned int tiempoEntrePersona;
 	std::string fileDebug;
   Configuracion() :
-    cantidadDePuertas(5),
-    delayEntrePiso(5),
+    cantidadDePuertas(2),
+    delayEntrePiso(2),
     tiempoSimulacion(20),
     capacidadAscensor(4),
     tiempoEntrePersona(10) {};

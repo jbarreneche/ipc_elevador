@@ -13,7 +13,7 @@
 
 class Lift {
   public:
-	Lift(unsigned int liftId, unsigned int delayEntrePisos);
+	Lift(unsigned int liftId, unsigned int delayEntrePisos, unsigned int capacity);
 	~Lift();
 
 	void start();
@@ -30,6 +30,11 @@ class Lift {
 	LiftState state;
 	std::vector<Person> peopleTravelling;
 	Logger log;
+
+	void logStartTravel(Person person);
+	void logEndTravel(Person person);
+	void logArrival();
+	unsigned int countPeopleToGetOff();
 };
 
 #endif

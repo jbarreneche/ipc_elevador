@@ -22,7 +22,7 @@ int LiftShaft::run() {
     case 0: {
       log.debug("poniendo en marcha el ascensor!");
 
-      Lift lift(1, tiempoEntrePisos);
+      Lift lift(0, tiempoEntrePisos, capacidadAscensor);
       lift.start();
 
       log.debug("esperando que el controller termine");

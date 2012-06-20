@@ -11,16 +11,20 @@ template <class T> const T& min ( const T& a, const T& b ) {
 
 LiftController::LiftController(unsigned int liftsCount) :
   log("LiftController") ,
-  liftStates(liftsCount, LiftState(1)),
-  liftMailboxes(liftsCount, LiftMailbox(1)) {
+  liftStates(liftsCount, LiftState()) {
+
+  for (unsigned int i = 0; i < liftsCount; i++) {
+    LiftMailbox lMailbox(i);
+    liftMailboxes.push_back(lMailbox);
+  }
 
 	this->continuarSimulacion = true;
+  stoppedLifts = 0;
 }
 
 int LiftController::work() {
 
   while(simRunning()) {
-		log.info( "Esperando que haya movimiento!" );
     mailbox.receiveMessage(this);
   }
   log.info( "Termino el LiftController" );
@@ -43,13 +47,15 @@ LiftController::~LiftController() {
 
 
 void LiftController::newLiftArrival(LiftState liftState) {
-  log.info( "Llegó un ascensor!" );
 
   unsigned int liftId = liftState.getLiftId();
-  liftStates.insert( liftStates.begin()+liftId, liftState );
+  liftStates.at(liftId) = liftState;
 
   if (liftState.hasPeopleToGetOff()) {
+    log.info( "Llegó un ascensor con gente!" );
     liftMailboxes[liftId].getOff();
+  } else {
+    log.info( "Llegó un ascensor!" );
   }
 
   switch(liftState.getMovingDirection()) {
@@ -60,10 +66,13 @@ void LiftController::newLiftArrival(LiftState liftState) {
       } else if (peopleWaitingDown(liftState.getCurrentFloor())) {
         getOnDown(liftId);
         liftMailboxes[liftId].travel(DOWN);
+      } else {
+        stoppedLifts++;
+        log.info("Ascensor seguirá quieto (no hay nadie arriba ni abajo)");
       }
       break;
     case UP:
-      if (peopleWaitingUp(liftState.getCurrentFloor())) {
+      if (!liftState.isEmpty() || peopleWaitingUp(liftState.getCurrentFloor())) {
         getOnUp(liftId);
         liftMailboxes[liftId].travel(UP);
       } else {
@@ -71,7 +80,7 @@ void LiftController::newLiftArrival(LiftState liftState) {
       }
       break;
     case DOWN:
-      if (peopleWaitingDown(liftState.getCurrentFloor())) {
+      if (!liftState.isEmpty() || peopleWaitingDown(liftState.getCurrentFloor())) {
         getOnDown(liftId);
         liftMailboxes[liftId].travel(DOWN);
       } else {
@@ -79,35 +88,35 @@ void LiftController::newLiftArrival(LiftState liftState) {
       }
       break;
   }
-  log.info("Chau ascensor!!");
 }
 
 void LiftController::newPersonArrival(Person person) {
-  log.info( "Hay gente!!" );
 
   peopleWaiting.push_back(person);
+  logPersonArrival(person);
 
   // Any lift travelling there => return
   std::vector<LiftState>::iterator state;
   for(state =  liftStates.begin();
       state != liftStates.end();
       state++) {
-    if (state->goingTo(person.getArrivalFloor()))
-      return;
-  }
-
-
-  // Any lift not travelling? => put it to work
-  for(unsigned int i = 0; i < liftStates.size(); i++) {
-
-    if (!liftStates[i].isMoving()) {
-      MovingDirection direction =
-        liftStates[i].getCurrentFloor() > person.getArrivalFloor() ? DOWN :
-        liftStates[i].getCurrentFloor() < person.getArrivalFloor() ? UP : NOT_MOVING;
-
-      liftMailboxes[i].travel(direction);
+    if (state->goingTo(person.getArrivalFloor())) {
+      log.info( "Había un ascensor en camino" );
       return;
     }
+  }
+  log.info( "Ningún ascensor estaba en camino" );
+
+  // Any lift not travelling? => put it to work
+  if (stoppedLifts > 0) {
+    log.info( "Se encontró ascensor libre!" );
+    stoppedLifts--;
+    unsigned int i = stoppedLifts;
+    MovingDirection direction =
+      liftStates[i].getCurrentFloor() > person.getArrivalFloor() ? DOWN :
+      liftStates[i].getCurrentFloor() < person.getArrivalFloor() ? UP : NOT_MOVING;
+
+    liftMailboxes[i].travel(direction);
 	}
 
 }
@@ -126,6 +135,10 @@ bool LiftController::peopleWaitingUp(unsigned int currentFloor) {
     waitingUp |= person->getArrivalFloor() > currentFloor;
   }
 
+  if (waitingUp) {
+    log.info("Se encontró gente esperando arriba del piso actual");
+  }
+
   return waitingUp;
 }
 
@@ -142,53 +155,96 @@ bool LiftController::peopleWaitingDown(unsigned int currentFloor) {
     waitingDown |= person->getArrivalFloor() < currentFloor;
   }
 
+  if (waitingDown) {
+    log.info("Se encontró gente esperando abajo del piso actual");
+  }
+
   return waitingDown;
 }
 
 void LiftController::getOnUp(unsigned int liftId) {
 
   LiftState liftState = liftStates[liftId];
-  if (liftState.isFull()) return;
+  if (liftState.isFull()) {
+    log.info("El ascensor estaba lleno");
+    return;
+  }
 
   unsigned int currentFloor = liftState.getCurrentFloor();
+  unsigned int getOnCount = 0;
 
-  for(unsigned int i = 0; i < liftState.getAvailableSpace(); i ++) {
-    bool found = false;
-    for(unsigned int j = 0; j < peopleWaiting.size(); j++) {
-      if (peopleWaiting[j].getArrivalFloor() == currentFloor
-        && peopleWaiting[j].travelsUp()) {
-        found = true;
-        liftMailboxes[liftId].getOn(peopleWaiting[j]);
-        peopleWaiting.erase(peopleWaiting.begin() + j);
-        break;
-      }
+  std::vector<Person>::iterator person;
+  person = peopleWaiting.begin();
+
+  while( getOnCount < liftState.getAvailableSpace() &&
+    person != peopleWaiting.end()) {
+
+    if (person->getArrivalFloor() == currentFloor && person->travelsUp()) {
+      log.info("Subiendo persona (sube)");
+      getOnCount++;
+      liftMailboxes[liftId].getOn(*person);
+      person = peopleWaiting.erase(person);
+    } else {
+      person++;
     }
-    if(!found) break;
   }
 }
 
 void LiftController::getOnDown(unsigned int liftId) {
 
   LiftState liftState = liftStates[liftId];
-  if (liftState.isFull()) return;
+  if (liftState.isFull()) {
+    log.info("El ascensor estaba lleno");
+    return;
+  }
 
   unsigned int currentFloor = liftState.getCurrentFloor();
+  unsigned int getOnCount = 0;
 
-  for(unsigned int i = 0; i < liftState.getAvailableSpace(); i ++) {
-    bool found = false;
-    for(unsigned int j = 0; j < peopleWaiting.size(); j++) {
-      if (peopleWaiting[j].getArrivalFloor() == currentFloor
-        && peopleWaiting[j].travelsDown()) {
-        found = true;
-        liftMailboxes[liftId].getOn(peopleWaiting[j]);
-        peopleWaiting.erase(peopleWaiting.begin() + j);
-        break;
-      }
+  std::vector<Person>::iterator person;
+  person = peopleWaiting.begin();
+
+  while( getOnCount < liftState.getAvailableSpace() &&
+    person != peopleWaiting.end()) {
+
+    if (person->getArrivalFloor() == currentFloor && person->travelsDown()) {
+      log.info("Subiendo persona (baja)");
+      getOnCount++;
+      liftMailboxes[liftId].getOn(*person);
+      person = peopleWaiting.erase(person);
+    } else {
+      person++;
     }
-    if(!found) break;
   }
 }
 
 void LiftController::endPeopleGenerator() {
 	this->continuarSimulacion = false;
 }
+
+void LiftController::logPersonArrival(Person person) {
+  std::stringstream ss;
+  ss << "Person(" << person.getId() << "): " << "llegó al piso: " << person.getArrivalFloor() << " para viajar hasta " << person.getDestinationFloor();
+  log.info(ss.str().c_str());
+}
+
+bool LiftController::simRunning() {
+  return continuarSimulacion || peopleWaiting.size() > 0 || stoppedLifts != liftMailboxes.size();
+}
+
+// bool LiftController::anyLiftNotEmpty() {
+//   bool anyNotEmpty = false;
+//   std::vector<LiftState>::iterator liftState;
+
+//   for(liftState  = liftStates.begin();
+//       liftState != liftStates.end();
+//       liftState++) {
+//     anyNotEmpty |= !liftState->isEmpty();
+//   }
+
+//   if (anyNotEmpty) {
+//     log.info("Hay algún");
+//   }
+
+//   return allEmpty;
+// }

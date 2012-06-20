@@ -35,6 +35,10 @@ unsigned int Person::getArrivalFloor() {
 	return arrivalFloor;
 }
 
+unsigned int Person::getDestinationFloor() {
+	return destinationFloor;
+}
+
 bool Person::travelsUp() {
 	return arrivalFloor < destinationFloor;
 }

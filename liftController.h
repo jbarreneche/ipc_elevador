@@ -22,6 +22,7 @@ class LiftController {
 
     Logger log;
     bool continuarSimulacion;
+    unsigned int stoppedLifts;
 
     LiftControllerMailbox mailbox;
 
@@ -29,11 +30,13 @@ class LiftController {
     std::vector<Person> peopleWaiting;
     std::vector<LiftMailbox> liftMailboxes;
 
-    bool simRunning() { return ( continuarSimulacion ); }
+    bool simRunning();
     bool peopleWaitingUp(unsigned int currentFloor);
     bool peopleWaitingDown(unsigned int currentFloor);
+    // bool allLiftsAreEmpty();
     void getOnUp(unsigned int liftId);
     void getOnDown(unsigned int liftId);
+    void logPersonArrival(Person);
 };
 
 #endif

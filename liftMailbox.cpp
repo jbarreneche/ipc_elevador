@@ -40,7 +40,7 @@ struct longMessage {
 };
 
 LiftMailbox::LiftMailbox(unsigned int liftId) {
-	key_t mailboxKey = ftok("./liftSim", liftId);
+	key_t mailboxKey = ftok("./liftSim", liftId + 1);
 
 	if( mailboxKey == -1 ) {
 		perror("liftMailBox queueID:");
