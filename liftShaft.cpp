@@ -20,26 +20,26 @@ int LiftShaft::run() {
   switch (pid = fork()) {
     case -1: return -1;
     case 0: {
+      log.debug("poniendo en marcha el ascensor!");
 
-      log.debug("poniendo en marcha el Controller!");
+      Lift lift(1, tiempoEntrePisos);
+      lift.start();
 
-      LiftController liftController(puertas, capacidadAscensor);
-      status = liftController.work();
-      Logger::closeGlobalDebug(); // XXX: YUCK!
+      log.debug("esperando que el controller termine");
 
       return status;
 
     }
     default: {
-      log.debug("poniendo en marcha el ascensor!");
+      log.debug("poniendo en marcha el Controller!");
 
-      Lift lift(1, tiempoEntrePisos);
-      lift.start(pid);
-
-      log.debug("esperando que el controller termine");
+      LiftController liftController(1);
+      status = liftController.work();
+      Logger::closeGlobalDebug(); // XXX: YUCK!
       waitpid(pid, &status, 0);
 
       return status;
+
     }
   }
 }

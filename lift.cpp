@@ -11,7 +11,11 @@ Lift::Lift( unsigned int liftId, unsigned int delayEntrePisos) :
   controller.newLiftArrival(state);
 }
 
-void Lift::start(pid_t killPid) {
+Lift::~Lift() {
+  this->mailbox.close();
+}
+
+void Lift::start() {
   log.info( "start lift" );
 
   running = true;
@@ -19,8 +23,7 @@ void Lift::start(pid_t killPid) {
     mailbox.receiveMessage(this);
   }
 
-	this->mailbox.close();
-  log.debug("exit lift ok");
+  log.info("exit lift ok");
 
 }
 
@@ -47,7 +50,7 @@ void Lift::getOff() {
 	persons = peopleTravelling.begin();
 
 	while( persons != peopleTravelling.end() ) {
-	
+
 		if( state.getCurrentFloor() == persons->getArrivalFloor() ) {
 			state.getOff();
 			persons = peopleTravelling.erase(persons);

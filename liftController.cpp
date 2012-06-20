@@ -33,12 +33,14 @@ int LiftController::work() {
     liftMailbox->endWork();
   }
 
-	this->mailbox.close();
   log.debug( "Termino el LiftController ok" );
   return 0;
 }
 
-LiftController::~LiftController() {}
+LiftController::~LiftController() {
+  this->mailbox.close();
+}
+
 
 void LiftController::newLiftArrival(LiftState liftState) {
   log.info( "Llegó un ascensor!" );
@@ -77,6 +79,7 @@ void LiftController::newLiftArrival(LiftState liftState) {
       }
       break;
   }
+  log.info("Chau ascensor!!");
 }
 
 void LiftController::newPersonArrival(Person person) {
@@ -93,9 +96,9 @@ void LiftController::newPersonArrival(Person person) {
       return;
   }
 
-	
+
   // Any lift not travelling? => put it to work
-  for(int i = 0; i < liftStates.size(); i++) {
+  for(unsigned int i = 0; i < liftStates.size(); i++) {
 
     if (!liftStates[i].isMoving()) {
       MovingDirection direction =
