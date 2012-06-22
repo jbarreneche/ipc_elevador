@@ -7,13 +7,14 @@
 
 #include <iostream>
 
-#define NUMBER_OF_LIFTS 3
 
-LiftShaft::LiftShaft(unsigned int cantidadPisos, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor) :
+LiftShaft::LiftShaft(unsigned int cantidadPisos, unsigned int tiempoEntrePisos, 
+										 unsigned int capacidadAscensor, unsigned int cantidadDeAscensores) :
       log("LiftShaft") {
   this->capacidadAscensor = capacidadAscensor;
   this->tiempoEntrePisos = tiempoEntrePisos;
   this->cantidadPisos = cantidadPisos;
+	this->cantidadDeAscensores = cantidadDeAscensores;
 }
 
 int LiftShaft::run() {
@@ -26,7 +27,7 @@ int LiftShaft::run() {
     case 0: {
       log.info("poniendo en marcha los ascensores!");
 
-			for( int i = 0; i<NUMBER_OF_LIFTS; i++ )
+			for( unsigned int i = 0; i<this->cantidadDeAscensores; i++ )
 				if( startNewLift(i) == 0 )
 					return 0;
 
@@ -39,7 +40,7 @@ int LiftShaft::run() {
     default: {
       log.debug("poniendo en marcha el Controller!");
 
-      LiftController liftController(NUMBER_OF_LIFTS);
+      LiftController liftController( this->cantidadDeAscensores );
       status = liftController.work();
       Logger::closeGlobalDebug(); // XXX: YUCK!
       waitpid(pid, &status, 0);
