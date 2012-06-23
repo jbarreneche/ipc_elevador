@@ -19,11 +19,11 @@ typedef struct Configuracion {
   unsigned int tiempoEntrePersona;
 	std::string fileDebug;
   Configuracion() :
-    cantidadDePuertas(2),
-    delayEntrePiso(2),
-    tiempoSimulacion(20),
+    cantidadDePuertas(5),
+    delayEntrePiso(5),
+    tiempoSimulacion(30),
     capacidadAscensor(4),
-    tiempoEntrePersona(10) {};
+    tiempoEntrePersona(5) {};
 };
 
 Configuracion parseParams(int argc, char **argv);

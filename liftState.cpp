@@ -20,7 +20,11 @@ bool LiftState::isEmpty() {
 }
 
 bool LiftState::isMoving() {
-	return movingDirection == UP || movingDirection == DOWN;
+	return movingDirection != NOT_MOVING;
+}
+
+void LiftState::startMoving(MovingDirection direction) {
+	movingDirection = direction;
 }
 
 bool LiftState::hasPeopleToGetOff() {

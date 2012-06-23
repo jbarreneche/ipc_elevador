@@ -14,6 +14,7 @@ public:
 	bool hasPeopleToGetOff();
 	bool goingTo(unsigned int floor);
 	int  getMovingDelta();
+	void startMoving(MovingDirection);
 	unsigned int getPeopleToGetOff();
 	unsigned int getAvailableSpace();
 	unsigned int getLiftId();

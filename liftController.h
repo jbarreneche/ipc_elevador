@@ -22,7 +22,6 @@ class LiftController {
 
     Logger log;
     bool continuarSimulacion;
-    unsigned int stoppedLifts;
 
     LiftControllerMailbox mailbox;
 
@@ -33,10 +32,13 @@ class LiftController {
     bool simRunning();
     bool peopleWaitingUp(unsigned int currentFloor);
     bool peopleWaitingDown(unsigned int currentFloor);
-    // bool allLiftsAreEmpty();
+    bool anyLiftMoving();
+    void moveLiftUp(unsigned int liftId);
+    void moveLiftDown(unsigned int liftId);
     void getOnUp(unsigned int liftId);
     void getOnDown(unsigned int liftId);
     void logPersonArrival(Person);
+    void makeNextLiftMovement(LiftState, MovingDirection preferredDirection);
 };
 
 #endif
