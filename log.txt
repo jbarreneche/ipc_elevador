@@ -1,2 +1,0 @@
-02:18:29- info -Lift(pid=7123): start lift
-02:18:29- info -LiftController(pid=7124): Esperando que haya movimiento!
