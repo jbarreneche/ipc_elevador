@@ -1,6 +1,8 @@
 #include "person.h"
 #include <stdlib.h>
 
+#include <sstream>
+
 unsigned int randFloor(unsigned int excludeFloor, unsigned int numberOfFloors) {
   unsigned int floor = rand() % (numberOfFloors - 1);
   if (floor >= excludeFloor) {
@@ -9,46 +11,59 @@ unsigned int randFloor(unsigned int excludeFloor, unsigned int numberOfFloors) {
     return floor;
   }
 }
-Person::Person(int id, unsigned int fromFloor, unsigned int numberOfFloors) {
-	this->id = id;
-	this->arrivalFloor = fromFloor;
-	this->destinationFloor = randFloor(fromFloor, numberOfFloors);
-	this->arrivedAt = time(NULL);
-}
-Person::Person(const Person& copy) {
-	this->id = copy.id;
-	this->arrivalFloor     = copy.arrivalFloor;
-	this->arrivedAt        = copy.arrivedAt;
-	this->startedTravelAt  = copy.startedTravelAt;
-	this->endedTravelAt    = copy.endedTravelAt;
-	this->destinationFloor = copy.destinationFloor;
+
+Person::Person(int id, unsigned int fromFloor, unsigned int numberOfFloors)
+	: state(id, fromFloor, numberOfFloors) {
+	this->state.destinationFloor = randFloor(fromFloor, numberOfFloors);
+	this->state.arrivedAt = time(NULL);
 }
 
-void Person::startTravel() {
-	this->startedTravelAt = time(NULL);
+Person::Person(const Person& copy)
+	: state(copy.state) {
 }
 
-void Person::endTravel() {
-	this->endedTravelAt = time(NULL);
+Person::Person(const PersonState& s)
+	: state(s) {
 }
+
+
 unsigned int Person::getArrivalFloor() {
-	return arrivalFloor;
+	return state.arrivalFloor;
 }
 
 unsigned int Person::getDestinationFloor() {
-	return destinationFloor;
+	return state.destinationFloor;
 }
 
 bool Person::travelsUp() {
-	return arrivalFloor < destinationFloor;
+	return state.arrivalFloor < state.destinationFloor;
 }
 
 bool Person::travelsDown() {
-	return arrivalFloor > destinationFloor;
+	return state.arrivalFloor > state.destinationFloor;
 }
 
 int Person::getId() {
-	return this->id;
+	return this->state.id;
 }
 
+
+void Person::startTravel( LiftState& state ) {
+	this->state.startedTravelAt = time(NULL);
+  std::stringstream ss;
+  ss << "Person(" << this->getId() << "): ";
+	ss << "se tomó el ascensor " << state.getLiftId();
+	ss << " para viajar desde " << this->getArrivalFloor();
+	ss << " hasta " << this->getDestinationFloor();
+  log.info(ss.str().c_str());
+}
+
+void Person::endTravel( LiftState& state ) {
+	this->state.endedTravelAt = time(NULL);
+  std::stringstream ss;
+  ss << "Person(" << this->getId() << "): ";
+	ss << "se bajó del ascensor " << state.getLiftId() <<
+  " en el piso " << this->getDestinationFloor();
+  log.info(ss.str().c_str());
+}
 

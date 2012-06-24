@@ -2,12 +2,17 @@
 #define PERSON_H_
 
 #include <time.h>
+#include "personState.h"
+#include "liftState.h"
+
+#include "logger.h"
 
 class Person {
 
 public:
 	Person(int id, unsigned int fromFloor, unsigned int numberOfFloors);
 	Person(const Person&);
+	Person(const PersonState&);
 	void startTravel();
 	void endTravel();
 	unsigned int getArrivalFloor();
@@ -17,10 +22,15 @@ public:
 
 	int getId();
 
+	PersonState getState();
+
+	void startTravel( LiftState& state );
+	void endTravel( LiftState& state );
+
 private:
-	int id;
-	unsigned int arrivalFloor, destinationFloor;
-	time_t arrivedAt, startedTravelAt, endedTravelAt;
+	PersonState state;
+	Logger log;
+
 };
 
 #endif

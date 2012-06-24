@@ -18,8 +18,8 @@ typedef struct travelMSG {
 #define GET_ON_MESSAGE 2L
 typedef struct getOnMSG {
 	long mtype;
-	Person person;
-	getOnMSG(Person p) : mtype(GET_ON_MESSAGE), person(p)  {};
+	PersonState personState;
+	getOnMSG(Person p) : mtype(GET_ON_MESSAGE), personState(p.getState())  {};
 };
 
 #define GET_OFF_MESSAGE 3L
@@ -62,7 +62,7 @@ void LiftMailbox::travel(MovingDirection direction) {
 
 void LiftMailbox::getOn(Person person) {
 	getOnMSG message(person);
-	msgsnd(queueId, &message, sizeof(person), 0);
+	msgsnd(queueId, &message, sizeof(message.personState), 0);
 }
 
 void LiftMailbox::getOff() {
@@ -86,7 +86,7 @@ void LiftMailbox::receiveMessage(Lift* lift) {
 		}
 		case GET_ON_MESSAGE: {
 			getOnMSG message((const getOnMSG&)undecodedMessage);
-			lift->getOn(message.person);
+			lift->getOn( Person(message.personState) );
 			break;
 		}
 		case GET_OFF_MESSAGE: {

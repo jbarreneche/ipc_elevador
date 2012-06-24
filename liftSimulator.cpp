@@ -54,7 +54,8 @@ int main(int argc, char **argv) {
       return(-1);
 
     case 0: {
-      LiftShaft shaft(configuracion.cantidadDePuertas, configuracion.delayEntrePiso, configuracion.capacidadAscensor);
+      LiftShaft shaft(configuracion.cantidadDePuertas, 
+											configuracion.delayEntrePiso, configuracion.capacidadAscensor, 3);
       status = shaft.run();
 			Logger::closeGlobalDebug();
 			return status;
