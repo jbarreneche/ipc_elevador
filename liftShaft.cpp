@@ -1,7 +1,6 @@
 #include "liftShaft.h"
 #include "lift.h"
 #include "liftController.h"
-// #include "pipe.h"
 
 #include <sys/wait.h>
 
