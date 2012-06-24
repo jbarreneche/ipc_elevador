@@ -28,11 +28,9 @@ class Lift {
 	LiftMailbox mailbox;
 	LiftControllerMailbox controller;
 	LiftState state;
-	std::vector<Person> peopleTravelling;
+ 	std::vector<Person> peopleTravelling;
 	Logger log;
 
-	void logStartTravel(Person person);
-	void logEndTravel(Person person);
 	void logArrival();
 	unsigned int countPeopleToGetOff();
 };

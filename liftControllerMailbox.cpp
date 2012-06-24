@@ -11,8 +11,8 @@
 #define PERSON_ARRIVAL_MESSAGE 1L
 typedef struct personArrival {
 	long mtype;
-	Person person;
-	personArrival(Person p) : mtype(PERSON_ARRIVAL_MESSAGE), person(p)  {};
+	PersonState personState;
+	personArrival(Person p) : mtype(PERSON_ARRIVAL_MESSAGE), personState(p.getState())  {};
 };
 
 #define LIFT_ARRIVAL_MESSAGE 2L
@@ -47,7 +47,7 @@ LiftControllerMailbox::LiftControllerMailbox() {
 
 void LiftControllerMailbox::newPersonArrival(Person person) {
 	personArrival message(person);
-	msgsnd(queueId, &message, sizeof(person), 0);
+	msgsnd(queueId, &message, sizeof(message.personState), 0);
 }
 
 void LiftControllerMailbox::newLiftArrival(LiftState lift) {
@@ -80,7 +80,7 @@ void LiftControllerMailbox::receiveMessage(LiftController *controller) {
 		}
 		case PERSON_ARRIVAL_MESSAGE: {
 			personArrival message((const personArrival&)undecodedMessage);
-			controller->newPersonArrival(message.person);
+			controller->newPersonArrival(Person(message.personState));
 			break;
 		}
 	  case END_GENERATOR_MESSAGE: {

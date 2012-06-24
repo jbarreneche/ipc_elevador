@@ -48,24 +48,10 @@ void Lift::logArrival() {
   log.info(ss.str().c_str());
 }
 
-void Lift::logEndTravel(Person person) {
-  std::stringstream ss;
-  ss << "Person(" << person.getId() << "): " << "se bajó del ascensor " << state.getLiftId() <<
-  " en el piso " << person.getDestinationFloor();
-  log.info(ss.str().c_str());
-}
-
-void Lift::logStartTravel(Person person) {
-  std::stringstream ss;
-  ss << "Person(" << person.getId() << "): " << "se tomó el ascensor " << state.getLiftId() <<
-  " para viajar desde " << person.getArrivalFloor() << " hasta " << person.getDestinationFloor();
-  log.info(ss.str().c_str());
-}
 
 void Lift::getOn(Person person) {
 	this->peopleTravelling.push_back(person);
-  person.startTravel();
-  logStartTravel(person);
+  person.startTravel( this->state );
 }
 
 // Allow people wanting to get off on this floor
@@ -76,8 +62,7 @@ void Lift::getOff() {
 
 	while( person != peopleTravelling.end() ) {
 		if( state.getCurrentFloor() == person->getDestinationFloor() ) {
-      person->endTravel();
-      logEndTravel(*person);
+      person->endTravel( this->state );
 			person = peopleTravelling.erase(person);
 		} else {
 			person++;
@@ -104,4 +89,8 @@ unsigned int Lift::countPeopleToGetOff() {
   }
 
   return getOffCount;
+}
+
+PersonState Person::getState() {
+	return this->state;
 }
