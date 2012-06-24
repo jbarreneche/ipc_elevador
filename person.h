@@ -13,8 +13,10 @@ public:
 	Person(int id, unsigned int fromFloor, unsigned int numberOfFloors);
 	Person(const Person&);
 	Person(const PersonState&);
-	void startTravel();
-	void endTravel();
+
+	void startTravel( unsigned int liftId );
+	void endTravel( unsigned int liftId );
+
 	unsigned int getArrivalFloor();
 	unsigned int getDestinationFloor();
 	bool travelsUp();
@@ -24,8 +26,7 @@ public:
 
 	PersonState getState();
 
-	void startTravel( LiftState& state );
-	void endTravel( LiftState& state );
+
 
 private:
 	PersonState state;

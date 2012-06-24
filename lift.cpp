@@ -51,7 +51,7 @@ void Lift::logArrival() {
 
 void Lift::getOn(Person person) {
 	this->peopleTravelling.push_back(person);
-  person.startTravel( this->state );
+  person.startTravel( this->state.liftId );
 }
 
 // Allow people wanting to get off on this floor
@@ -62,7 +62,7 @@ void Lift::getOff() {
 
 	while( person != peopleTravelling.end() ) {
 		if( state.getCurrentFloor() == person->getDestinationFloor() ) {
-      person->endTravel( this->state );
+      person->endTravel( this->state.liftId );
 			person = peopleTravelling.erase(person);
 		} else {
 			person++;
