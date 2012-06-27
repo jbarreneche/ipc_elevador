@@ -1,17 +1,17 @@
 #include "peopleGenerator.h"
 
-#include <signal.h>
+#include <cstdlib>
 
-#define DELTA_SLEEP 10
-#define MIN_SLEEP 3
+#define MIN_SLEEP 1
 
-PeopleGenerator::PeopleGenerator(int peopleTime, SetPuertas puertas) :
-  log("PeopleGenerator"), puertas(puertas) {
+PeopleGenerator::PeopleGenerator(int peopleTime, unsigned int numberOfFloors) :
+  log("PeopleGenerator") {
   this->peopleTime = peopleTime;
+	this->numberOfFloors = numberOfFloors;
+	this->nextPersonId = 0;
 }
 
-void PeopleGenerator::run(int simTime, pid_t pid) {
-  this->pid = pid;
+void PeopleGenerator::run(int simTime) {
   time_t start = time(NULL);
   time_t end = start + simTime;
 
@@ -20,11 +20,17 @@ void PeopleGenerator::run(int simTime, pid_t pid) {
     spawnPerson();
   }
 
-  log.info( "Fin peopleGenerator. Mando SIGINT a controller" );
-  kill(pid, SIGINT);
+  log.info( "Fin peopleGenerator. Mando mensaje a controller" );
+	this->controllerMailBox.endPeopleGenerator();
 }
 
 void PeopleGenerator::spawnPerson() {
-  puertas.agregarPersona( rand() % puertas.getCantidadDePuertas() );
+  log.info( "send person" );
+	Person p( this->nextPersonId,
+						rand() % this->numberOfFloors,
+						this->numberOfFloors );
+
+	this->controllerMailBox.newPersonArrival(p);
+	this->nextPersonId += 1;
 }
 

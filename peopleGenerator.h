@@ -2,21 +2,24 @@
 #define PEOPLE_GENERATOR
 
 #include "logger.h"
-#include "setPuertas.h"
+#include "liftControllerMailbox.h"
 
 class PeopleGenerator {
   public:
 
-    PeopleGenerator(int peopleTime, SetPuertas puertas);
+    PeopleGenerator(int peopleTime, unsigned int numberOfFloors);
 
-    void run(int simTime, pid_t pid);
+    void run(int simTime);
 
   private:
-    pid_t pid;
     Logger log;
-    SetPuertas puertas;
     int peopleTime;
+    unsigned int numberOfFloors;
+    unsigned int nextPersonId;
+    LiftControllerMailbox controllerMailBox;
+
     void spawnPerson();
+
 };
 
 #endif

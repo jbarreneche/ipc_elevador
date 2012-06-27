@@ -1,81 +1,96 @@
 #include "lift.h"
 
-#include <signal.h>
 #include <sstream>
+#include <stdio.h>
 
-int signalRegister2( int sigNum, void (*handler)(int) );
+#include <iostream>
 
-volatile sig_atomic_t Lift::killPid = 0;
-
-Lift::Lift( unsigned int delayEntrePisos, Pipe* inPipe, Pipe* outPipe ) :
-	log("Lift") {
-
+Lift::Lift( unsigned int liftId, unsigned int delayEntrePisos, unsigned int capacity) :
+	mailbox(liftId), state(liftId, capacity), log("Lift") {
 	this->delayEntrePisos = delayEntrePisos;
-	this->inPipe = inPipe;
-	this->outPipe = outPipe;
-
-	this->inPipe->setearModo(LECTURA);
-	this->outPipe->setearModo(ESCRITURA);
+  controller.newLiftArrival(state);
 }
 
-void signalHandler( int signal ) {
-  if (Lift::killPid) {
-    kill(Lift::killPid, signal);
-  }
+Lift::~Lift() {
+  this->mailbox.close();
 }
 
-void Lift::start(pid_t killPid) {
-  Lift::killPid = killPid;
-
-  std::stringstream ss;
-  ss << "on SIGINT kill procces pid=" << Lift::killPid;
-  log.debug( ss.str().c_str() );
-
-  signalRegister2( SIGINT, &signalHandler );
-
+void Lift::start() {
   log.info( "start lift" );
 
-  char buffer = LIFT_MOVE;
-
-  while( buffer == LIFT_MOVE ) {
-
-	  log.debug("waiting pipe");
-	  inPipe->leer( &buffer, 1 );
-
-	  switch( buffer ) {
-	  case LIFT_MOVE: {
-		  log.info("En movimiento");
-
-		  int tiempoRestante = delayEntrePisos;
-		  while( tiempoRestante > 0 )
-			  tiempoRestante = sleep( tiempoRestante );
-
-		  log.info("frenar");
-		  this->outPipe->escribir(LIFT_OK);
-		  break;
-	  }
-	  case LIFT_EXIT:
-	  default:
-		  log.debug("exit");
-		  this->outPipe->escribir(LIFT_OK);
-		  break;
-	  }
+  running = true;
+  while( running ) {
+    mailbox.receiveMessage(this);
   }
-  log.debug("exit lift ok");
+
+  log.info("exit lift ok");
 
 }
 
-int signalRegister2( int sigNum, void (*handler)(int) ) {
-  struct sigaction sa;
+void Lift::travel(MovingDirection direction) {
+  state.movingDirection = direction;
+  if (state.isMoving()) {
+    int tiempoRestante = delayEntrePisos;
+    while( tiempoRestante > 0 )
+      tiempoRestante = sleep( tiempoRestante );
+    state.currentFloor += state.getMovingDelta();
+    logArrival();
+  }
+  state.peopleToGetOff  = countPeopleToGetOff();
+  state.peopleRemaining = peopleTravelling.size() - state.peopleToGetOff;
+  controller.newLiftArrival(state);
+}
 
-  sa.sa_handler = handler;
-  sa.sa_flags = SA_RESTART;
-  sigemptyset(&sa.sa_mask);
+void Lift::logArrival() {
+  std::stringstream ss;
+  ss << state.getLiftId() << ": " << "llegó al piso " << state.currentFloor << " con " <<
+  state.peopleToGetOff << " para bajar";
+  log.info(ss.str().c_str());
+}
 
-  if (sigaction(SIGINT, &sa, NULL) == -1) {
-    perror("sigaction");
-    return -1;
+
+void Lift::getOn(Person person) {
+	this->peopleTravelling.push_back(person);
+  person.startTravel( this->state.liftId );
+}
+
+// Allow people wanting to get off on this floor
+void Lift::getOff() {
+  log.info("A punto de bajar personas");
+	std::vector<Person>::iterator person;
+	person = peopleTravelling.begin();
+
+	while( person != peopleTravelling.end() ) {
+		if( state.getCurrentFloor() == person->getDestinationFloor() ) {
+      person->endTravel( this->state.liftId );
+			person = peopleTravelling.erase(person);
+		} else {
+			person++;
+		}
+	}
+}
+
+void Lift::end() {
+	log.info( "END_LIFT");
+  running = false;
+}
+
+unsigned int Lift::countPeopleToGetOff() {
+
+  unsigned int getOffCount = 0;
+  std::vector<Person>::iterator person;
+  person = peopleTravelling.begin();
+
+  while( person != peopleTravelling.end() ) {
+    if (person->getDestinationFloor() == state.currentFloor) {
+      getOffCount++;
+    }
+    person++;
   }
 
-  return 0;
+  return getOffCount;
+}
+
+PersonState Person::getState() {
+	return this->state;
 }

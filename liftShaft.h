@@ -1,19 +1,26 @@
 #ifndef LIFT_SHAFT
 #define LIFT_SHAFT
 
-#include "setPuertas.h"
 #include "logger.h"
+
+#include <vector>
 
 class LiftShaft {
   public:
-    LiftShaft(SetPuertas puertas, unsigned int tiempoEntrePisos, unsigned int capacidadAscensor);
+    LiftShaft(unsigned int cantidadPisos, unsigned int tiempoEntrePisos, 
+							unsigned int capacidadAscensor, unsigned int cantidadDeAscensores);
     int run();
 
   private:
-    SetPuertas puertas;
     unsigned int capacidadAscensor;
     unsigned int tiempoEntrePisos;
+    unsigned int cantidadPisos;
+	  unsigned int cantidadDeAscensores;
     Logger log;
+
+	  std::vector<pid_t> liftPids;
+  	int startNewLift( int liftId );
+	  void waitAllLifts();
 };
 
 #endif
