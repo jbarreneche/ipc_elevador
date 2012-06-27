@@ -17,13 +17,15 @@ typedef struct Configuracion {
   unsigned int tiempoSimulacion;
   unsigned int capacidadAscensor;
   unsigned int tiempoEntrePersona;
+  unsigned int cantidadDeAscensores;;
 	std::string fileDebug;
   Configuracion() :
     cantidadDePuertas(5),
     delayEntrePiso(5),
     tiempoSimulacion(30),
     capacidadAscensor(4),
-    tiempoEntrePersona(5) {};
+    tiempoEntrePersona(5),
+		cantidadDeAscensores(3) {};
 };
 
 Configuracion parseParams(int argc, char **argv);
@@ -55,7 +57,7 @@ int main(int argc, char **argv) {
 
     case 0: {
       LiftShaft shaft(configuracion.cantidadDePuertas, 
-											configuracion.delayEntrePiso, configuracion.capacidadAscensor, 3);
+											configuracion.delayEntrePiso, configuracion.capacidadAscensor, configuracion.cantidadDeAscensores);
       status = shaft.run();
 			Logger::closeGlobalDebug();
 			return status;
@@ -78,6 +80,7 @@ void showHelp() {
     " [--help|-h] [--floors|-f=num] [--floor-delay|-d=num]  " <<
     " [--sim-length|-l=num] [--capacity|-c=num]" <<
 		" [--output|-o=FILE]" <<
+		" [--nlifts|-i=num]" <<
     std::endl;
 
   std::cout << "\t--help -h\t\tshow this help" << std::endl;
@@ -88,6 +91,7 @@ void showHelp() {
   std::cout << "\t--gen-delay -g=num\tset the maximum delay between each generated person (has to be greater than 0)" << std::endl;
   std::cout << "\t--output -o=FILE\tsave log message to the file" << std::endl;
   std::cout << "\t--speed -s=SPEED\tlift moving speed in m/s (changes floor-delay)" << std::endl;
+  std::cout << "\t--nlifts -i=num\t        number of lifts" << std::endl;
 }
 
 Configuracion parseParams(int argc, char **argv) {
@@ -102,13 +106,14 @@ Configuracion parseParams(int argc, char **argv) {
     {"capacity",    required_argument, 0, 'c'},
     {"gen-delay",   required_argument, 0, 'g'},
     {"output",      required_argument, 0, 'o'},
+    {"nlifts",      required_argument, 0, 'i'},
     {0, 0, 0, 0}
   };
   int option_index = 0;
   int c = -1;
   int speed = 0;
 
-  while (  (c = getopt_long(argc, argv, "hf:d:l:c:o:g:", long_options, &option_index)) != -1 ) {
+  while (  (c = getopt_long(argc, argv, "hf:d:l:c:o:g:i:", long_options, &option_index)) != -1 ) {
     switch(c) {
       case 'h':
         showHelp();
@@ -160,6 +165,13 @@ Configuracion parseParams(int argc, char **argv) {
         break;
       case 'o':
 				configuracion.fileDebug = optarg;
+        break;
+
+      case 'i':
+        if(sscanf(optarg, "%u", &configuracion.cantidadDeAscensores) <= 0) {
+          std::cout << "Invalid number of lifts: " << optarg << std::endl;
+          exit(1);
+        }
         break;
 
       case '?':
