@@ -52,7 +52,7 @@ int LiftShaft::run() {
 
 
 int LiftShaft::startNewLift( int liftId ) {
-  pid_t pid; int status;
+  pid_t pid;
 
   switch (pid = fork()) {
 	  case -1: return -1;
